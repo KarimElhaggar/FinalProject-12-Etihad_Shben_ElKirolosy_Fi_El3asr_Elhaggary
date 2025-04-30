@@ -1,4 +1,4 @@
-package constants;
+package com.example.reviews.constants;
 
 public enum ReviewStatus {
     PENDING,

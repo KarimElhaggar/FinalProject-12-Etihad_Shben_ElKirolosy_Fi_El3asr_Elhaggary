@@ -1,6 +1,6 @@
-package model;
+package com.example.reviews.model;
 
-import constants.ReviewStatus;
+import com.example.reviews.constants.ReviewStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;

@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
@@ -18,6 +21,9 @@ public class Movie {
     private double rating;
     private String genre;
 
+    @ElementCollection
+    private List<Long> interestedUserIds = new ArrayList<>();
+
 
     public Movie() {}
 
@@ -29,12 +35,13 @@ public class Movie {
         this.yearReleased = builder.yearReleased;
         this.rating = builder.rating;
         this.genre = builder.genre;
+        this.interestedUserIds = builder.interestedUserIds;
     }
 
     //   public void setId(int id) { this.id = id; }
- //   public void setMovieName(String movieName) { this.movieName = movieName; }
- //   public void setAuthor(String author) { this.author = author; }
-  //  public void setYearReleased(int yearReleased) { this.yearReleased = yearReleased; }
+    //   public void setMovieName(String movieName) { this.movieName = movieName; }
+    //   public void setAuthor(String author) { this.author = author; }
+    //  public void setYearReleased(int yearReleased) { this.yearReleased = yearReleased; }
 
     public static class Builder {
         private Long id;
@@ -43,6 +50,7 @@ public class Movie {
         private int yearReleased;
         private double rating;
         private String genre;
+        private List<Long> interestedUserIds;
 
         public Builder id(Long id) {
             this.id = id;
@@ -71,6 +79,11 @@ public class Movie {
 
         public Builder genre(String genre) {
             this.genre = genre;
+            return this;
+        }
+
+        public Builder interestedUserIds(List<Long> interestedUserIds) {
+            this.interestedUserIds = interestedUserIds;
             return this;
         }
 
