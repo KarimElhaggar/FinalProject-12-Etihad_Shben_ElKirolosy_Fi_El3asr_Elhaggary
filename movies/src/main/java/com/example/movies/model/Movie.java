@@ -11,7 +11,7 @@ import lombok.Setter;
 public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private String movieName;
     private String author;
     private int yearReleased;
@@ -37,14 +37,14 @@ public class Movie {
   //  public void setYearReleased(int yearReleased) { this.yearReleased = yearReleased; }
 
     public static class Builder {
-        private int id;
+        private Long id;
         private String movieName;
         private String author;
         private int yearReleased;
         private double rating;
         private String genre;
 
-        public Builder id(int id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }
