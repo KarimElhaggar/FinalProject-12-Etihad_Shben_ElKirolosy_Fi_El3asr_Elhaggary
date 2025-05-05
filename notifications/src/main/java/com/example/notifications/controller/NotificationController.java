@@ -1,6 +1,9 @@
 package com.example.notifications.controller;
 
 import com.example.notifications.model.Notification;
+import com.example.notifications.command.NotificationCommand;
+import com.example.notifications.command.NotificationCommandInvoker;
+import com.example.notifications.command.SendNotificationCommand;
 import com.example.notifications.constants.NotificationType;
 import com.example.notifications.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +20,27 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
+    @PostMapping("/command")
+    public ResponseEntity<String> createViaCommand(@RequestBody Notification notification) {
+        NotificationCommand command = new SendNotificationCommand(notificationService, notification);
+        NotificationCommandInvoker invoker = new NotificationCommandInvoker();
+        invoker.addCommand(command);
+        invoker.executeAll();
+        return ResponseEntity.ok("Notification command executed.");
+    }
+
+    @PostMapping("/observer")
+    public ResponseEntity<String> createViaObserver(@RequestParam String message,
+                                                    @RequestParam Long userId,
+                                                    @RequestParam NotificationType type,
+                                                    @RequestParam(required = false) Long movieId) {
+        notificationService.triggerObserverNotification(message, userId, movieId, type);
+        return ResponseEntity.ok("Notification sent via observer.");
+    }
 
     @PostMapping
     public ResponseEntity<Notification> createNotification(@RequestBody Notification notification) {
-        Notification saved = notificationService.saveNotification(notification);
-        return ResponseEntity.ok(saved);
+        return ResponseEntity.ok(notificationService.saveNotification(notification));
     }
 
     @GetMapping
@@ -40,9 +59,8 @@ public class NotificationController {
     }
 
     @GetMapping("/user/{userId}/unread/{type}")
-    public ResponseEntity<List<Notification>> getUnreadByType(
-            @PathVariable Long userId,
-            @PathVariable NotificationType type) {
+    public ResponseEntity<List<Notification>> getUnreadByType(@PathVariable Long userId,
+                                                              @PathVariable NotificationType type) {
         return ResponseEntity.ok(notificationService.getUnreadByType(userId, type));
     }
 
