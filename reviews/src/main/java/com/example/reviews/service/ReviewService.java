@@ -100,4 +100,16 @@ public class ReviewService {
         //TODO update movie rating
         return reviewRepository.save(existing);
     }
+
+    public void deleteReview(String reviewId) {
+        if (reviewId == null) {
+            throw new InvalidDataAccessApiUsageException("Review ID cannot be null");
+        }
+
+        if(!reviewRepository.existsById(reviewId)) {
+            throw new InvalidDataAccessApiUsageException("Review does not exist");
+        }
+
+        reviewRepository.deleteById(reviewId);
+    }
 }
