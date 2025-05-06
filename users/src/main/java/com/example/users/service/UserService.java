@@ -3,15 +3,17 @@ package com.example.users.service;
 import com.example.users.model.User;
 import com.example.users.repository.UserRepository;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 public class UserService {
     UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public void banUser(Long userId) {
         // Logic to ban a user
@@ -31,6 +33,14 @@ public class UserService {
         @PostMapping("/notifications/subscribe")
         void subscribe(@RequestParam("userId") Long userId, @RequestParam("topicId") Long topicId);
     }
+    // will be added when added in review service
+
+//    @FeignClient(name = "review-service")
+//    public interface ReviewClient {
+//        @PostMapping("/reviews/add")
+//        ResponseEntity<String> addReview(@RequestBody ReviewRequest request);
+//    }
+
 
 
 }
