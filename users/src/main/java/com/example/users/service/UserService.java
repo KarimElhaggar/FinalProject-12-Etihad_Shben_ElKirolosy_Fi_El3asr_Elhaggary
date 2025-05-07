@@ -21,10 +21,11 @@ public class UserService {
 
     public void banUser(Long userId) {
         // Logic to ban a user
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         user.setBanned(true);
         userRepository.save(user);
     }
+
     //me7tain review wa notification yezwado functions fa service wa controller 3ashan a call it wa na integrate
     @FeignClient(name = "review-service")
     public interface ReviewClient {
@@ -32,6 +33,14 @@ public class UserService {
         List<String> getReviewsByMovie(@PathVariable("movieId") Long movieId); // hia strin for now wa change in integration
     }
     public User createUser(User user) {
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is already taken");
+        }
+
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is already taken");
+        }
+
         return userRepository.save(user);
     }
 
@@ -83,6 +92,14 @@ public class UserService {
         User followUser = userRepository.findById(followUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User to follow not found."));
 
+        if (user.isBanned()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are banned and cannot follow users.");
+        }
+
+        if (followUser.isBanned()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot follow a banned user.");
+        }
+
         if (!user.getFollowing().contains(followUser.getId())) {
             user.getFollowing().add(followUser.getId());
             followUser.getFollowers().add(user.getId());
@@ -93,11 +110,6 @@ public class UserService {
         }
     }
 
-    @FeignClient(name = "notification-service")
-    public interface NotificationClient {
-        @PostMapping("/notifications/subscribe")
-        void subscribe(@RequestParam("userId") Long userId, @RequestParam("topicId") Long topicId);
-    }
     public void unfollowUser(Long userId, Long followUserId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
@@ -112,6 +124,12 @@ public class UserService {
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not following this user.");
         }
+    }
+
+    @FeignClient(name = "notification-service")
+    public interface NotificationClient {
+        @PostMapping("/notifications/subscribe")
+        void subscribe(@RequestParam("userId") Long userId, @RequestParam("topicId") Long topicId);
     }
 }
 

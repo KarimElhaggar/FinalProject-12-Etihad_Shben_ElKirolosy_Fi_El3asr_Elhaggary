@@ -18,16 +18,6 @@ public class User {
     private boolean admin;
     private boolean banned;
 
-//    @ManyToMany
-//    @JoinTable(
-//            name = "user_following",
-//            joinColumns = @JoinColumn(name = "follower_id"),
-//            inverseJoinColumns = @JoinColumn(name = "following_id")
-//    )
-//    private List<User> following = new ArrayList<>();
-//
-//    @ManyToMany(mappedBy = "following")
-//    private List<User> followers = new ArrayList<>();
     @ElementCollection
     @CollectionTable(name = "user_following_ids", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "following_id")
@@ -124,6 +114,15 @@ public class User {
         }
 
         public User build() {
+            if (this.username == null || this.username.isEmpty()) {
+                throw new IllegalArgumentException("Username cannot be null or empty");
+            }
+            if (this.email == null || this.email.isEmpty()) {
+                throw new IllegalArgumentException("Email cannot be null or empty");
+            }
+            if (this.password == null || this.password.isEmpty()) {
+                throw new IllegalArgumentException("Password cannot be null or empty");
+            }
             return new User(this);
         }
     }

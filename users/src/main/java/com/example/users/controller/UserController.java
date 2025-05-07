@@ -1,5 +1,6 @@
 package com.example.users.controller;
 
+import com.example.users.dto.UserRequest;
 import com.example.users.model.User;
 import com.example.users.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -31,8 +33,26 @@ public class UserController {
      }
 
      @PostMapping
-     public User createUser(@RequestBody User user) {
-         return userService.createUser(user);
+     public ResponseEntity<?> createUser(@RequestBody UserRequest request) {
+         User.Builder builder = new User.Builder()
+                 .username(request.getUsername())
+                 .email(request.getEmail())
+                 .password(request.getPassword());
+         // Optional fields — only set if meaningful
+         if(request.getName() != null) {
+             builder.name(request.getName());
+         }
+         builder.admin(request.isAdmin());
+         builder.banned(request.isBanned());
+         builder.following(new ArrayList<>());
+         builder.followers(new ArrayList<>());
+
+         try {
+             User user = builder.build();
+             return ResponseEntity.ok(userService.createUser(user));
+         } catch (Exception e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
+         }
      }
 
     @PutMapping("/update/{id}")
@@ -71,8 +91,8 @@ public class UserController {
     }
 
     @PutMapping("/ban/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable Long id) {
-    userService.banUser(id);
-    return ResponseEntity.ok("User with ID " + id + " has been banned.");// wa law 3ayzin by name easy bardo
+    public ResponseEntity<String> banUser(@PathVariable Long id) {
+        userService.banUser(id);
+        return ResponseEntity.ok("User with ID " + id + " has been banned.");// wa law 3ayzin by name easy bardo
     }
 }
