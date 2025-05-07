@@ -68,6 +68,7 @@ public class UserController {
         } catch (Exception e) {
             return "Error: " + e.getMessage();
         }
+    }
 
     @PutMapping("/ban/{id}")
     public ResponseEntity<String> updateUser(@PathVariable Long id) {

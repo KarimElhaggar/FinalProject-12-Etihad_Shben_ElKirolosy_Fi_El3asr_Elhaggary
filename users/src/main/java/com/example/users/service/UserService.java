@@ -30,6 +30,7 @@ public class UserService {
     public interface ReviewClient {
         @GetMapping("/reviews/by-movie/{movieId}")
         List<String> getReviewsByMovie(@PathVariable("movieId") Long movieId); // hia strin for now wa change in integration
+    }
     public User createUser(User user) {
         return userRepository.save(user);
     }
@@ -96,6 +97,7 @@ public class UserService {
     public interface NotificationClient {
         @PostMapping("/notifications/subscribe")
         void subscribe(@RequestParam("userId") Long userId, @RequestParam("topicId") Long topicId);
+    }
     public void unfollowUser(Long userId, Long followUserId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
@@ -111,5 +113,5 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not following this user.");
         }
     }
-
 }
+
