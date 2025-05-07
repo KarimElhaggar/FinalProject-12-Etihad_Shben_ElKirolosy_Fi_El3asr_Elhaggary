@@ -18,16 +18,15 @@ public class User {
     private boolean admin;
     private boolean banned;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_following",
-            joinColumns = @JoinColumn(name = "follower_id"),
-            inverseJoinColumns = @JoinColumn(name = "following_id")
-    )
-    private List<User> following = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(name = "user_following_ids", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "following_id")
+    private List<Long> following = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "following")
-    private List<User> followers = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(name = "user_follower_ids", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "follower_id")
+    private List<Long> followers = new ArrayList<>();
 
     public User() {}
 
@@ -49,8 +48,8 @@ public class User {
     public String getUsername() { return username; }
     public String getEmail() { return email; }
     public String getPassword() { return password; }
-    public List<User> getFollowing() { return following; }
-    public List<User> getFollowers() { return followers; }
+    public List<Long> getFollowing() { return following; }
+    public List<Long> getFollowers() { return followers; }
     public boolean isAdmin() { return admin; }
     public boolean isBanned() { return banned; }
 
@@ -60,8 +59,8 @@ public class User {
     public void setUsername(String username) { this.username = username; }
     public void setEmail(String email) { this.email = email; }
     public void setPassword(String password) { this.password = password; }
-    public void setFollowing(List<User> following) { this.following = following; }
-    public void setFollowers(List<User> followers) { this.followers = followers; }
+    public void setFollowing(List<Long> following) { this.following = following; }
+    public void setFollowers(List<Long> followers) { this.followers = followers; }
     public void setAdmin(boolean admin) { this.admin = admin; }
     public void setBanned(boolean banned) { this.banned = banned; }
 
@@ -73,8 +72,8 @@ public class User {
         private String username;
         private String email;
         private String password;
-        private List<User> following;
-        private List<User> followers;
+        private List<Long> following;
+        private List<Long> followers;
         private boolean admin;
         private boolean banned;
 
@@ -98,11 +97,11 @@ public class User {
             this.password = password; return this;
         }
 
-        public Builder following(List<User> following) {
+        public Builder following(List<Long> following) {
             this.following = following; return this;
         }
 
-        public Builder followers(List<User> followers) {
+        public Builder followers(List<Long> followers) {
             this.followers = followers; return this;
         }
 
@@ -115,6 +114,15 @@ public class User {
         }
 
         public User build() {
+            if (this.username == null || this.username.isEmpty()) {
+                throw new IllegalArgumentException("Username cannot be null or empty");
+            }
+            if (this.email == null || this.email.isEmpty()) {
+                throw new IllegalArgumentException("Email cannot be null or empty");
+            }
+            if (this.password == null || this.password.isEmpty()) {
+                throw new IllegalArgumentException("Password cannot be null or empty");
+            }
             return new User(this);
         }
     }
