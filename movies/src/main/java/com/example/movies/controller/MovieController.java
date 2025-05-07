@@ -72,5 +72,14 @@ public class MovieController {
         return movieService.getMoviesByAuthor(author);
     }
 
+    @GetMapping("/ViewMoviesByName")
+    public String getMovieByName(@RequestParam String name) {
+        return movieService.getMovieByName(name);
+    }
+
+    @GetMapping("/RandomMovie")
+    public String getRandomMovie(@RequestParam int limit) {
+        return movieService.getRandomMovies(limit);
+    }
 
 }

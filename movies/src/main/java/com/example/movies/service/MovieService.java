@@ -77,4 +77,13 @@ public class MovieService {
         return movies.toString();
     }
 
+    public String getMovieByName(String name) {
+        List<Movie> movies = movieRepository.findByMovieName(name);
+        return movies.toString();
+    }
+
+    public String getRandomMovies(int limit) {
+        List<Movie> movies = movieRepository.findRandomMovies(limit);
+        return movies.toString();
+    }
 }
