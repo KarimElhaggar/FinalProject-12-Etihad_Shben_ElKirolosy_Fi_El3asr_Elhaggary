@@ -10,17 +10,30 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class UserService {
+    private final AuthService authService;
     UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, AuthService authService) {
         this.userRepository = userRepository;
+        this.authService = authService;
     }
 
     public void banUser(Long userId) {
         // Logic to ban a user
+        User admin = authService.getLoggedInUser();
+
+        if (!admin.isAdmin()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can ban users.");
+        }
+
+        if (admin.getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot ban yourself.");
+        }
+
         User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         user.setBanned(true);
         userRepository.save(user);
@@ -86,11 +99,22 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public void followUser(Long userId, Long followUserId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+    public void followUser(Long followUserId) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+
+        User user = authService.getLoggedInUser();
+
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No logged in user found.");
+        }
+
         User followUser = userRepository.findById(followUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User to follow not found."));
+
+        if (Objects.equals(user.getId(), followUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot follow yourself.");
+        }
 
         if (user.isBanned()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are banned and cannot follow users.");
@@ -110,11 +134,18 @@ public class UserService {
         }
     }
 
-    public void unfollowUser(Long userId, Long followUserId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+    public void unfollowUser(Long followUserId) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+
+        User user = authService.getLoggedInUser();
+
         User followUser = userRepository.findById(followUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User to unfollow not found."));
+
+        if (Objects.equals(user.getId(), followUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot unfollow yourself.");
+        }
 
         if (user.getFollowing().contains(followUser.getId())) {
             user.getFollowing().remove(followUser.getId());
@@ -132,4 +163,3 @@ public class UserService {
         void subscribe(@RequestParam("userId") Long userId, @RequestParam("topicId") Long topicId);
     }
 }
-

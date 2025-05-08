@@ -70,21 +70,21 @@ public class UserController {
         }
     }
 
-    @PostMapping("/{userId}/follow/{followUserId}")
-    public String followUser(@PathVariable Long userId, @PathVariable Long followUserId) {
+    @PostMapping("/follow/{followUserId}")
+    public String followUser(@PathVariable Long followUserId) {
         try {
-            userService.followUser(userId, followUserId);
-            return "User " + userId + " is now following user " + followUserId;
+            userService.followUser(followUserId);
+            return "Followed user " + followUserId;
         } catch (Exception e) {
             return "Error: " + e.getMessage();
         }
     }
 
-    @PostMapping("/{userId}/unfollow/{unfollowUserId}")
-    public String unfollowUser(@PathVariable Long userId, @PathVariable Long unfollowUserId) {
+    @PostMapping("/unfollow/{unfollowUserId}")
+    public String unfollowUser(@PathVariable Long unfollowUserId) {
         try {
-            userService.unfollowUser(userId, unfollowUserId);
-            return "User " + userId + " has unfollowed user " + unfollowUserId;
+            userService.unfollowUser(unfollowUserId);
+            return "Unfollowed user " + unfollowUserId;
         } catch (Exception e) {
             return "Error: " + e.getMessage();
         }
