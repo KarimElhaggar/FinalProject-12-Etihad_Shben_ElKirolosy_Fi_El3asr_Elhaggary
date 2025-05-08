@@ -14,5 +14,6 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     List<Movie> findByGenre(String genre);
     List<Movie> findByAuthor(String author);
     List<Movie> findByMovieName(String name);
-    @Query(value = "SELECT * FROM movies ORDER BY RAND() LIMIT :limit", nativeQuery = true)
-    List<Movie> findRandomMovies(@Param("limit") int limit);}
+    @Query(value = "SELECT * FROM movies ORDER BY RANDOM() LIMIT :limit", nativeQuery = true)
+    List<Movie> findRandomMovies(@Param("limit") int limit);
+}

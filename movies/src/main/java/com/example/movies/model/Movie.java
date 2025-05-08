@@ -17,8 +17,8 @@ public class Movie {
     private Long id;
     private String movieName;
     private String author;
-    private int yearReleased;
-    private double rating;
+    private Integer yearReleased;
+    private Double rating;
     private String genre;
     private boolean released;
 
@@ -49,8 +49,8 @@ public class Movie {
         private Long id;
         private String movieName;
         private String author;
-        private int yearReleased;
-        private double rating;
+        private Integer yearReleased;
+        private Double rating;
         private String genre;
         private List<Long> interestedUserIds;
         private boolean released;
@@ -70,12 +70,12 @@ public class Movie {
             return this;
         }
 
-        public Builder yearReleased(int yearReleased) {
+        public Builder yearReleased(Integer yearReleased) {
             this.yearReleased = yearReleased;
             return this;
         }
 
-        public Builder rating(double rating) {
+        public Builder rating(Double rating) {
             this.rating = rating;
             return this;
         }

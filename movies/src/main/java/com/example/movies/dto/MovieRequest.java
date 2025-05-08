@@ -9,16 +9,27 @@ import java.util.List;
 
 public class MovieRequest {
 
-    @NotBlank
+    @NotBlank(message = "Movie name cannot be blank")
     private String movieName;
-    @NotBlank
+    @NotBlank(message = "Author cannot be blank")
     private String author;
     private Integer yearReleased; // nullable
     private Double rating;        // nullable
     private String genre;
-    @NotBlank
-    private boolean released;
+    private Boolean released;
     private List<Long> interestedUserIds;
+
+    public MovieRequest() {}
+
+    public MovieRequest(String movieName, String author, Integer yearReleased, Double rating, String genre){
+        this.movieName = movieName;
+        this.author = author;
+        this.yearReleased = yearReleased;
+        this.rating = rating;
+        this.genre = genre;
+        this.released = false;
+        this.interestedUserIds = new ArrayList<>();
+    }
 
 
     public List<Long> getInterestedUserIds() {

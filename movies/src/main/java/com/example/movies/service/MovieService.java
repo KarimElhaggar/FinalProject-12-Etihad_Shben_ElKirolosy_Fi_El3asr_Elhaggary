@@ -13,9 +13,9 @@ public class MovieService {
     @Autowired
     private MovieRepository movieRepository;
 
-    public String getMovies() {
-        List<Movie> movies = movieRepository.findAll();
-        return movies.toString();
+    public List<Movie> getMovies() {
+       return movieRepository.findAll();
+
     }
 
     public String addMovie(Movie movie) {
@@ -53,37 +53,37 @@ public class MovieService {
         }
     }
 
-    public String getMovieById(Long id) {
+    public Movie getMovieById(Long id) {
         Optional<Movie> optionalMovie = movieRepository.findById(id);
         if (optionalMovie.isPresent()) {
-            return optionalMovie.get().toString();
+            return optionalMovie.get();
         } else {
-            return "Movie not found!";
+            throw new IllegalArgumentException("Movie not found!");
         }
     }
 
-    public String getMoviesAboveCertainRating(double rating) {
+    public List<Movie> getMoviesAboveCertainRating(double rating) {
         List<Movie> movies = movieRepository.findByRatingGreaterThan(rating);
-        return movies.toString();
+        return movies;
     }
 
-    public String getMoviesByGenre(String genre) {
+    public List<Movie> getMoviesByGenre(String genre) {
         List<Movie> movies = movieRepository.findByGenre(genre);
-        return movies.toString();
+        return movies;
     }
 
-    public String getMoviesByAuthor(String author) {
+    public List<Movie> getMoviesByAuthor(String author) {
         List<Movie> movies = movieRepository.findByAuthor(author);
-        return movies.toString();
+        return movies;
     }
 
-    public String getMovieByName(String name) {
+    public List<Movie> getMovieByName(String name) {
         List<Movie> movies = movieRepository.findByMovieName(name);
-        return movies.toString();
+        return movies;
     }
 
-    public String getRandomMovies(int limit) {
+    public List<Movie> getRandomMovies(int limit) {
         List<Movie> movies = movieRepository.findRandomMovies(limit);
-        return movies.toString();
+        return movies;
     }
 }
