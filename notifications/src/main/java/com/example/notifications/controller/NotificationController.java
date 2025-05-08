@@ -7,8 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/notifications")
@@ -69,6 +72,12 @@ public class NotificationController {
     public ResponseEntity<?> markAsUnread(@PathVariable Long id) {
         notificationService.markAsUnread(id);
         return ResponseEntity.ok("Read status updated.");
+    }
+
+    @PostMapping("/send")
+    public ResponseEntity<?> sendBatch(@RequestBody List<Long> ids) {
+        notificationService.sendBatch(ids);
+        return ResponseEntity.ok("Notifications sent.");
     }
 
     @DeleteMapping("/{id}")
