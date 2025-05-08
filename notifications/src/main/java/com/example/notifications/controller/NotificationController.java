@@ -1,9 +1,6 @@
 package com.example.notifications.controller;
 
 import com.example.notifications.model.Notification;
-import com.example.notifications.command.NotificationCommand;
-import com.example.notifications.command.NotificationCommandInvoker;
-import com.example.notifications.command.SendNotificationCommand;
 import com.example.notifications.constants.NotificationType;
 import com.example.notifications.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,15 +16,6 @@ public class NotificationController {
 
     @Autowired
     private NotificationService notificationService;
-
-    @PostMapping("/command")
-    public ResponseEntity<String> createViaCommand(@RequestBody Notification notification) {
-        NotificationCommand command = new SendNotificationCommand(notificationService, notification);
-        NotificationCommandInvoker invoker = new NotificationCommandInvoker();
-        invoker.addCommand(command);
-        invoker.executeAll();
-        return ResponseEntity.ok("Notification command executed.");
-    }
 
     @PostMapping("/observer")
     public ResponseEntity<String> createViaObserver(@RequestParam String message,
@@ -72,12 +60,15 @@ public class NotificationController {
     }
 
     @PutMapping("/{id}/read")
-    public ResponseEntity<Notification> markAsRead(@PathVariable Long id) {
-        Notification updated = notificationService.markAsRead(id);
-        if (updated != null) {
-            return ResponseEntity.ok(updated);
-        }
-        return ResponseEntity.status(404).body(null);
+    public ResponseEntity<?> markAsRead(@PathVariable Long id) {
+        notificationService.markAsRead(id);
+        return ResponseEntity.ok("Read status updated.");
+    }
+
+    @PutMapping("/{id}/unread")
+    public ResponseEntity<?> markAsUnread(@PathVariable Long id) {
+        notificationService.markAsUnread(id);
+        return ResponseEntity.ok("Read status updated.");
     }
 
     @DeleteMapping("/{id}")

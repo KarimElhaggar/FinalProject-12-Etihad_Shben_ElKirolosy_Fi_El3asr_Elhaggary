@@ -17,4 +17,7 @@ public class SendNotificationCommand implements NotificationCommand {
     public void execute() {
         notificationService.saveNotification(notification);
     }
+
+    @Override
+    public void undo() {}
 }

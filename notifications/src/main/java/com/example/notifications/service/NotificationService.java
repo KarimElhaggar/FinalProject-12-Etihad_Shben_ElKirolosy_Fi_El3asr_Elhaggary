@@ -1,5 +1,7 @@
 package com.example.notifications.service;
 
+import com.example.notifications.command.NotificationCommand;
+import com.example.notifications.command.ToggleReadCommand;
 import com.example.notifications.model.Notification;
 import com.example.notifications.constants.NotificationType;
 import com.example.notifications.repository.NotificationRepository;
@@ -23,6 +25,13 @@ public class NotificationService {
 
     @Autowired
     private NotificationSubscriber subscriber;
+
+    private final NotificationCommandInvoker invoker;
+
+    public NotificationService(NotificationRepository repo, NotificationCommandInvoker invoker) {
+        this.notificationRepository = repo;
+        this.invoker = invoker;
+    }
 
     @PostConstruct
     public void init() {
@@ -52,14 +61,20 @@ public class NotificationService {
         return optional;
     }
 
-    public Notification markAsRead(Long id) {
-        Optional<Notification> optional = notificationRepository.findById(id);
-        if (optional.isPresent()) {
-            Notification notification = optional.get();
-            notification.setMarkAsRead(true);
-            return notificationRepository.save(notification);
-        }
-        return null;
+    public void markAsRead(Long id) {
+        Notification n = notificationRepository.findById(id).orElseThrow();
+        NotificationCommand command = new ToggleReadCommand(n, true);
+        invoker.setCommand(command);
+        invoker.executeCommand();
+        notificationRepository.save(n);
+    }
+
+    public void markAsUnread(Long id) {
+        Notification n = notificationRepository.findById(id).orElseThrow();
+        NotificationCommand command = new ToggleReadCommand(n, false);
+        invoker.setCommand(command);
+        invoker.executeCommand();
+        notificationRepository.save(n);
     }
 
     public List<Notification> getUnreadNotificationsByUserId(Long userId) {
