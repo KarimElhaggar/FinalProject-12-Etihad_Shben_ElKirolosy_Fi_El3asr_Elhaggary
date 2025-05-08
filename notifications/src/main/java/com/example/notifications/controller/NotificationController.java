@@ -91,4 +91,42 @@ public class NotificationController {
         notificationService.deleteAllByUserId(userId);
         return ResponseEntity.ok("All notifications for user deleted");
     }
+
+    private static final Set<String> ALLOWED_METHODS = Set.of(
+            "getNotificationType", "isMarkAsRead", "getMovieId"
+    );
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Notification>> filterByMethod(
+            @RequestParam String method,
+            @RequestParam String value) {
+
+        if (!ALLOWED_METHODS.contains(method)) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        try {
+            Method m = Notification.class.getMethod(method);
+            Class<?> returnType = m.getReturnType();
+            Object typedValue;
+
+            if (returnType == Long.class || returnType == long.class) {
+                typedValue = Long.parseLong(value);
+            } else if (returnType == Boolean.class || returnType == boolean.class) {
+                typedValue = Boolean.parseBoolean(value);
+            } else if (returnType.isEnum()) {
+                typedValue = Enum.valueOf((Class<Enum>) returnType, value.toUpperCase());
+            } else {
+                typedValue = value;
+            }
+
+            List<Notification> result = notificationService.filterNotificationsBy(method, typedValue);
+            return ResponseEntity.ok(result);
+        } catch (NoSuchMethodException e) {
+            return ResponseEntity.badRequest().body(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
 }

@@ -117,4 +117,22 @@ public class NotificationService {
         publisher.notifyObservers(message, userId, movieId, type);
     }
 
+    public List<Notification> filterNotificationsBy(String methodName, Object expectedValue) {
+        List<Notification> allNotifications = notificationRepository.findAll();
+        List<Notification> filtered = new ArrayList<>();
+
+        for (Notification notification : allNotifications) {
+            try {
+                Method method = notification.getClass().getMethod(methodName);
+                Object result = method.invoke(notification);
+                if (Objects.equals(result, expectedValue)) {
+                    filtered.add(notification);
+                }
+            } catch (Exception e) {
+                System.err.println("Reflection error: " + e.getMessage());
+            }
+        }
+
+        return filtered;
+    }
 }
