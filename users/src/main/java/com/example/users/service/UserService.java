@@ -23,7 +23,6 @@ public class UserService {
     }
 
     public void banUser(Long userId) {
-        // Logic to ban a user
         User admin = authService.getLoggedInUser();
 
         if (!admin.isAdmin()) {
@@ -39,12 +38,29 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public void unBanUser(Long userId) {
+        User admin = authService.getLoggedInUser();
+
+        if (!admin.isAdmin()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can unban users.");
+        }
+
+        if (admin.getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot unban yourself.");
+        }
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        user.setBanned(false);
+        userRepository.save(user);
+    }
+
     //me7tain review wa notification yezwado functions fa service wa controller 3ashan a call it wa na integrate
     @FeignClient(name = "review-service")
     public interface ReviewClient {
         @GetMapping("/reviews/by-movie/{movieId}")
         List<String> getReviewsByMovie(@PathVariable("movieId") Long movieId); // hia strin for now wa change in integration
     }
+
     public User createUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is already taken");
@@ -69,6 +85,12 @@ public class UserService {
     public User updateUser(Long id, User user) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+
+        User admin = authService.getLoggedInUser();
+
+        if (!admin.isAdmin()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can update users.");
+        }
 
         if(user.getName() != null) {
             existingUser.setName(user.getName());
@@ -96,6 +118,17 @@ public class UserService {
         if (!userRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
         }
+
+        User admin = authService.getLoggedInUser();
+
+        if (!admin.isAdmin()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can delete users.");
+        }
+
+        if (admin.getId().equals(id)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot delete yourself.");
+        }
+
         userRepository.deleteById(id);
     }
 

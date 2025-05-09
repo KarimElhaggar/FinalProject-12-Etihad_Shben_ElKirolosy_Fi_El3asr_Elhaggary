@@ -32,6 +32,7 @@ public class UserController {
          return userService.getUserById(id);
      }
 
+     // is this needed? also probably need to remove the try catch
      @PostMapping
      public ResponseEntity<?> createUser(@RequestBody UserRequest request) {
          User.Builder builder = new User.Builder()
@@ -62,37 +63,31 @@ public class UserController {
 
     @DeleteMapping("/delete/{id}")
     public String deleteUser(@PathVariable Long id) {
-        try {
-            userService.deleteUser(id);
-            return "User deleted successfully";
-        } catch (Exception e) {
-            return "Error: " + e.getMessage();
-        }
+        userService.deleteUser(id);
+        return "User deleted successfully";
     }
 
     @PostMapping("/follow/{followUserId}")
     public String followUser(@PathVariable Long followUserId) {
-        try {
-            userService.followUser(followUserId);
-            return "Followed user " + followUserId;
-        } catch (Exception e) {
-            return "Error: " + e.getMessage();
-        }
+        userService.followUser(followUserId);
+        return "Followed user " + followUserId;
     }
 
     @PostMapping("/unfollow/{unfollowUserId}")
     public String unfollowUser(@PathVariable Long unfollowUserId) {
-        try {
-            userService.unfollowUser(unfollowUserId);
-            return "Unfollowed user " + unfollowUserId;
-        } catch (Exception e) {
-            return "Error: " + e.getMessage();
-        }
+        userService.unfollowUser(unfollowUserId);
+        return "Unfollowed user " + unfollowUserId;
     }
 
     @PutMapping("/ban/{id}")
     public ResponseEntity<String> banUser(@PathVariable Long id) {
         userService.banUser(id);
         return ResponseEntity.ok("User with ID " + id + " has been banned.");// wa law 3ayzin by name easy bardo
+    }
+
+    @PutMapping("/unban/{id}")
+    public ResponseEntity<String> unBanUser(@PathVariable Long id) {
+        userService.unBanUser(id);
+        return ResponseEntity.ok("User with ID " + id + " has been unbanned.");// wa law 3ayzin by name easy bardo
     }
 }
