@@ -75,8 +75,8 @@ public class NotificationController {
     }
 
     @PostMapping("/send")
-    public ResponseEntity<?> sendBatch(@RequestBody List<Long> ids) {
-        notificationService.sendBatch(ids);
+    public ResponseEntity<?> sendBatch(@RequestBody List<Long> ids, @RequestParam NotificationType type) {
+        notificationService.sendBatch(ids, type);
         return ResponseEntity.ok("Notifications sent.");
     }
 

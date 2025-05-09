@@ -1,5 +1,6 @@
 package com.example.notifications.service;
 
+import com.example.notifications.command.CreateNotificationCommand;
 import com.example.notifications.command.NotificationCommand;
 import com.example.notifications.command.SendNotificationCommand;
 import com.example.notifications.command.ToggleReadCommand;
@@ -81,20 +82,16 @@ public class NotificationService {
         notificationRepository.save(n);
     }
 
-    public void send(Notification notification) {
-        System.out.println("Sending: " + notification.getNotification());
+    public void send(List<Long> userIds) {
     }
 
-    public void sendBatch(List<Long> ids) {
-        for (Long id : ids) {
-            Notification n = notificationRepository.findById(id).orElseThrow();
-            NotificationCommand command = new SendNotificationCommand(n, this);
-            invoker.addCommand(command);
+    public void sendBatch(List<Long> ids, NotificationType type) {
+        for (Long userId : ids) {
+            NotificationCommand created = new CreateNotificationCommand(this, type, userId);
+            invoker.addCommand(created);
         }
-
+        NotificationCommand command = new SendNotificationCommand(this, ids);
         invoker.executeAll();
-        List<Notification> updated = notificationRepository.findAllById(ids);
-        notificationRepository.saveAll(updated);
     }
 
     public List<Notification> getUnreadNotificationsByUserId(Long userId) {
