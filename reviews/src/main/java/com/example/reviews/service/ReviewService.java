@@ -1,19 +1,32 @@
 package com.example.reviews.service;
 
+import com.example.notifications.constants.NotificationType;
+import com.example.notifications.messages.NotificationMessage;
+import com.example.reviews.clients.UsersClient;
 import com.example.reviews.constants.ReviewStatus;
 import com.example.reviews.model.Review;
+import com.example.reviews.rabbitmq.RabbitMQProducer;
 import com.example.reviews.repository.ReviewRepository;
 
+import com.example.users.model.User;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @AllArgsConstructor
 public class ReviewService {
     private final ReviewRepository reviewRepository;
+
+    @Autowired
+    private final RabbitMQProducer rabbitMQProducer;
+    private final UsersClient usersClient;
+
     public List<Review> viewReviewsByUser(Long userId) {
         if (userId == null) {
             throw new InvalidDataAccessApiUsageException("Please provide a valid user id");
@@ -46,8 +59,12 @@ public class ReviewService {
         else{
             reviewToBeChanged.setLikesCount(reviewToBeChanged.getLikesCount() + 1);
             reviewToBeChanged.getLikedUsers().add(userId);
+
+            List<Long> usersToBeNotified = new ArrayList<>();
+            usersToBeNotified.add(reviewToBeChanged.getUserId());
+            NotificationMessage message = new NotificationMessage(usersToBeNotified, NotificationType.LIKEDREVIEW);
+            rabbitMQProducer.sendToNotifications(message);
         }
-        //TODO notify owner
         return reviewRepository.save(reviewToBeChanged);
     }
 
@@ -68,7 +85,12 @@ public class ReviewService {
         if (review == null) {
             throw new InvalidDataAccessApiUsageException("Review cannot be null");
         }
-        //TODO notify users
+
+        User user = usersClient.getUserById(review.getUserId());
+
+        NotificationMessage message = new NotificationMessage(user.getFollowing(), NotificationType.NEWREVIEW);
+        rabbitMQProducer.sendToNotifications(message);
+
         //TODO update movie rating
         return reviewRepository.save(review);
     }

@@ -1,7 +1,10 @@
 package com.example.movies.service;
 
  import com.example.movies.model.Movie;
+ import com.example.movies.rabbitmq.RabbitMQProducer;
  import com.example.movies.repository.MovieRepository;
+ import com.example.notifications.constants.NotificationType;
+ import com.example.notifications.messages.NotificationMessage;
  import org.springframework.beans.factory.annotation.Autowired;
  import org.springframework.stereotype.Service;
  import java.util.List;
@@ -11,10 +14,12 @@ package com.example.movies.service;
 public class MovieService {
 
     private final MovieRepository movieRepository;
+    private final RabbitMQProducer rabbitMQProducer;
 
     @Autowired
-    public MovieService(MovieRepository movieRepository) {
+    public MovieService(MovieRepository movieRepository, RabbitMQProducer rabbitMQProducer) {
         this.movieRepository = movieRepository;
+        this.rabbitMQProducer = rabbitMQProducer;
     }
 
     public List<Movie> getMovies() {
@@ -45,7 +50,8 @@ public class MovieService {
             if(movie.isReleased() != updatedMovie.isReleased()) {
                 //add logic to handle the change in release status
 
-                //notification logic
+                NotificationMessage message = new NotificationMessage(movie.getInterestedUserIds(), NotificationType.NEWMOVIE);
+                rabbitMQProducer.sendToNotifications(message);
             }
             movie.setReleased(updatedMovie.isReleased());
 

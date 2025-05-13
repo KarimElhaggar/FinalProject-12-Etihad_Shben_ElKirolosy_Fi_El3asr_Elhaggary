@@ -4,12 +4,15 @@ import com.example.notifications.command.CreateNotificationCommand;
 import com.example.notifications.command.NotificationCommand;
 import com.example.notifications.command.SendNotificationCommand;
 import com.example.notifications.command.ToggleReadCommand;
+import com.example.notifications.messages.NotificationMessage;
 import com.example.notifications.model.Notification;
 import com.example.notifications.constants.NotificationType;
+import com.example.notifications.rabbitmq.RabbitMQConfig;
 import com.example.notifications.repository.NotificationRepository;
 import jakarta.annotation.PostConstruct;
 import com.example.notifications.observer.NotificationPublisher;
 import com.example.notifications.observer.NotificationSubscriber;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -83,6 +86,13 @@ public class NotificationService {
     }
 
     public void send(List<Long> userIds) {
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.NOTIFICATION_QUEUE)
+    public void sendBatch(NotificationMessage message) {
+        System.out.println("Received a " + NotificationMessage.class.getSimpleName() + " of type" + message.getType());
+
+        sendBatch(message.getIds(), message.getType());
     }
 
     public void sendBatch(List<Long> ids, NotificationType type) {
