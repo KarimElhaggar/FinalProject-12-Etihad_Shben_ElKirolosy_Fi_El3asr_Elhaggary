@@ -17,12 +17,13 @@ public class Movie {
     private Long id;
     private String movieName;
     private String author;
-    private int yearReleased;
-    private double rating;
+    private Integer yearReleased;
+    private Double rating;
     private String genre;
+    private boolean released;
 
     @ElementCollection
-    private List<Long> interestedUserIds = new ArrayList<>();
+    private List<Long> interestedUserIds;
 
 
     public Movie() {}
@@ -36,6 +37,7 @@ public class Movie {
         this.rating = builder.rating;
         this.genre = builder.genre;
         this.interestedUserIds = builder.interestedUserIds;
+        this.released =builder.released;
     }
 
     //   public void setId(int id) { this.id = id; }
@@ -47,10 +49,11 @@ public class Movie {
         private Long id;
         private String movieName;
         private String author;
-        private int yearReleased;
-        private double rating;
+        private Integer yearReleased;
+        private Double rating;
         private String genre;
         private List<Long> interestedUserIds;
+        private boolean released;
 
         public Builder id(Long id) {
             this.id = id;
@@ -67,12 +70,12 @@ public class Movie {
             return this;
         }
 
-        public Builder yearReleased(int yearReleased) {
+        public Builder yearReleased(Integer yearReleased) {
             this.yearReleased = yearReleased;
             return this;
         }
 
-        public Builder rating(double rating) {
+        public Builder rating(Double rating) {
             this.rating = rating;
             return this;
         }
@@ -84,6 +87,10 @@ public class Movie {
 
         public Builder interestedUserIds(List<Long> interestedUserIds) {
             this.interestedUserIds = interestedUserIds;
+            return this;
+        }
+        public Builder released(boolean released) {
+            this.released = released;
             return this;
         }
 

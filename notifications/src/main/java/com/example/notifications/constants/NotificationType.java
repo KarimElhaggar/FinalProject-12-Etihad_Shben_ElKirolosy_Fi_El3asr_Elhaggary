@@ -1,4 +1,4 @@
-package com.example.notifications.model;
+package com.example.notifications.constants;
 
 public enum NotificationType {
     NEWMOVIE,
