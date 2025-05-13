@@ -1,14 +1,26 @@
 services:
-  app:
+  users_one:
     build: .
     ports:
-      - "8080:8080"
+      - "8083:8080"
     depends_on:
       - db
       - redis_cache
     environment:
       spring.datasource.url: jdbc:postgresql://db:5432/users_db
     restart: always
+
+  users_two:
+    build: .
+    ports:
+      - "8084:8080"
+    depends_on:
+      - db
+      - redis_cache
+    environment:
+      spring.datasource.url: jdbc:postgresql://db:5432/users_db
+    restart: always
+
   db:
     image: postgres
     environment:
@@ -28,3 +40,13 @@ services:
     ports:
       - "5540:5540"
     restart: always
+
+  nginx:
+    image: nginx
+    ports:
+      - "2727:80"
+    volumes:
+      - ./volumes/nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - users_one
+      - users_two
