@@ -110,6 +110,7 @@ public class ReviewService {
             throw new InvalidDataAccessApiUsageException("Review does not exist");
         }
 
+        //Todo update movie rating
         reviewRepository.deleteById(reviewId);
     }
 }

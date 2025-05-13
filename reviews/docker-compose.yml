@@ -1,0 +1,46 @@
+services:
+  reviews_one:
+    build: .
+    ports:
+      - "8081:8080"
+    depends_on:
+      - mongo
+      - redis_cache
+    environment:
+      Instance: "1"
+      spring.data.mongodb.uri: mongodb://hazem:1234@mongo:27017/hazem_52_2727?authSource=admin
+      spring.data.mongodb.database: hazem_52_2727
+
+  reviews_two:
+    build: .
+    ports:
+      - "8082:8080"
+    depends_on:
+      - mongo
+      - redis_cache
+    environment:
+      Instance: "2"
+      spring.data.mongodb.uri: mongodb://hazem:1234@mongo:27017/hazem_52_2727?authSource=admin
+      spring.data.mongodb.database: hazem_52_2727
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: hazem
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+      MONGO_INITDB_DATABASE: hazem_52_2727
+    ports:
+      - "27017:27017"
+
+  redis_cache:
+    image: redis:latest
+    container_name: redisCache
+    ports:
+      - "6379:6379"
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisInsight
+    ports:
+      - "5540:5540"
+    restart: always
