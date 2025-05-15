@@ -1,7 +1,6 @@
 package com.example.movies.rabbitmq;
 
 import com.example.movies.constants.NotificationType;
-import com.example.notifications.rabbitmq.RabbitMQConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

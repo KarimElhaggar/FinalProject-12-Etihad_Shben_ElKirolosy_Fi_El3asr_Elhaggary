@@ -5,6 +5,9 @@ import com.example.movies.model.Movie;
 import com.example.movies.rabbitmq.RabbitMQProducer;
 import com.example.movies.repository.MovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -26,17 +29,19 @@ public class MovieService {
 
     }
 
-    public String addMovie(Movie movie) {
-        movieRepository.save(movie);
-        return "Movie added successfully!";
+    @CachePut(value = "movie_cache", key = "#movie.id")
+    public Movie addMovie(Movie movie) {
+        return movieRepository.save(movie); // Save and return the Movie object
     }
 
+    @CacheEvict(value = "movie_cache", key = "#id")
     public String deleteMovie(Long id) {
         movieRepository.deleteById(id);
         return "Movie deleted successfully!";
     }
 
-    public String updateMovie(Long id, Movie updatedMovie) {
+    @CachePut(value = "movie_cache", key = "#id")
+    public Movie updateMovie(Long id, Movie updatedMovie) {
         Optional<Movie> optionalMovie = movieRepository.findById(id);
         if (optionalMovie.isPresent()) {
             Movie movie = optionalMovie.get();
@@ -55,12 +60,13 @@ public class MovieService {
 
 
             movieRepository.save(movie);
-            return "Movie updated successfully!";
+            return movie;
         } else {
-            return "Movie not found!";
+            return null;
         }
     }
 
+    @Cacheable(value = "movie_cache", key = "#id")
     public Movie getMovieById(Long id) {
         Optional<Movie> optionalMovie = movieRepository.findById(id);
         if (optionalMovie.isPresent()) {

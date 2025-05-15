@@ -26,7 +26,7 @@ public class MovieController {
     }
 
     @PostMapping("/addMovie")
-    public String addMovie(@Valid @RequestBody MovieRequest request) {
+    public Movie addMovie(@Valid @RequestBody MovieRequest request) {
         System.out.println(request.getAuthor());
         System.out.println(request.getMovieName());
 
@@ -60,7 +60,7 @@ public class MovieController {
     }
 
     @PutMapping("/{id}")
-    public String updateMovie(@PathVariable Long id, @Valid @RequestBody MovieRequest request) {
+    public Movie updateMovie(@PathVariable Long id, @Valid @RequestBody MovieRequest request) {
         Movie.Builder builder = new Movie.Builder().id(id)
                 .movieName(request.getMovieName())
                 .author(request.getAuthor())
