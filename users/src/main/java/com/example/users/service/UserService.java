@@ -3,7 +3,6 @@ package com.example.users.service;
 import com.example.users.model.User;
 import com.example.users.repository.UserRepository;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -80,6 +79,13 @@ public class UserService {
     public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    public List<Long> getUserFollowersById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        return user.getFollowers();
     }
 
     public User updateUser(Long id, User user) {

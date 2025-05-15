@@ -1,14 +1,13 @@
 package com.example.movies.service;
 
- import com.example.movies.model.Movie;
- import com.example.movies.rabbitmq.RabbitMQProducer;
- import com.example.movies.repository.MovieRepository;
- import com.example.notifications.constants.NotificationType;
- import com.example.notifications.messages.NotificationMessage;
- import org.springframework.beans.factory.annotation.Autowired;
- import org.springframework.stereotype.Service;
- import java.util.List;
- import java.util.Optional;
+import com.example.movies.constants.NotificationType;
+import com.example.movies.model.Movie;
+import com.example.movies.rabbitmq.RabbitMQProducer;
+import com.example.movies.repository.MovieRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MovieService {
@@ -50,8 +49,7 @@ public class MovieService {
             if(movie.isReleased() != updatedMovie.isReleased()) {
                 //add logic to handle the change in release status
 
-                NotificationMessage message = new NotificationMessage(movie.getInterestedUserIds(), NotificationType.NEWMOVIE);
-                rabbitMQProducer.sendToNotifications(message);
+                rabbitMQProducer.sendToNotifications(movie.getInterestedUserIds(), NotificationType.NEWMOVIE);
             }
             movie.setReleased(updatedMovie.isReleased());
 

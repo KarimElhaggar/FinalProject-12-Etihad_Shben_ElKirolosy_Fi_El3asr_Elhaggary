@@ -1,15 +1,12 @@
 package com.example.reviews.service;
 
-import com.example.notifications.constants.NotificationType;
-import com.example.notifications.messages.NotificationMessage;
 import com.example.reviews.clients.UsersClient;
 import com.example.reviews.constants.ReviewStatus;
+import com.example.reviews.constants.NotificationType;
 import com.example.reviews.model.Review;
 import com.example.reviews.rabbitmq.RabbitMQProducer;
 import com.example.reviews.repository.ReviewRepository;
 
-import com.example.users.model.User;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -62,8 +59,8 @@ public class ReviewService {
 
             List<Long> usersToBeNotified = new ArrayList<>();
             usersToBeNotified.add(reviewToBeChanged.getUserId());
-            NotificationMessage message = new NotificationMessage(usersToBeNotified, NotificationType.LIKEDREVIEW);
-            rabbitMQProducer.sendToNotifications(message);
+
+            rabbitMQProducer.sendToNotifications(usersToBeNotified, NotificationType.LIKEDREVIEW);
         }
         return reviewRepository.save(reviewToBeChanged);
     }
@@ -86,10 +83,9 @@ public class ReviewService {
             throw new InvalidDataAccessApiUsageException("Review cannot be null");
         }
 
-        User user = usersClient.getUserById(review.getUserId());
+        List<Long> followers = usersClient.getUserFollowersById(review.getUserId());
 
-        NotificationMessage message = new NotificationMessage(user.getFollowing(), NotificationType.NEWREVIEW);
-        rabbitMQProducer.sendToNotifications(message);
+        rabbitMQProducer.sendToNotifications(followers, NotificationType.NEWREVIEW);
 
         //TODO update movie rating
         return reviewRepository.save(review);

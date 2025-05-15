@@ -87,18 +87,6 @@
 			<artifactId>spring-rabbit-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>com.example</groupId>
-            <artifactId>notifications</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-		<dependency>
-			<groupId>com.example</groupId>
-			<artifactId>users</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<scope>compile</scope>
-		</dependency>
 <!--		<dependency>-->
 <!--			<groupId>org.verapdf</groupId>-->
 <!--			<artifactId>validation-jakarta</artifactId>-->

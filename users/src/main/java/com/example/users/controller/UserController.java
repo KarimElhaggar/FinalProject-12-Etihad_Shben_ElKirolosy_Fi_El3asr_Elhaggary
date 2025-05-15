@@ -32,6 +32,11 @@ public class UserController {
          return userService.getUserById(id);
      }
 
+    @GetMapping("/followers/{id}")
+    public List<Long> getUserFollowersById(@PathVariable Long id) {
+        return userService.getUserFollowersById(id);
+    }
+
      // is this needed? also probably need to remove the try catch
      @PostMapping
      public ResponseEntity<?> createUser(@RequestBody UserRequest request) {

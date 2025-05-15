@@ -4,10 +4,6 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 
 public class RabbitMQConfig {
@@ -31,18 +27,5 @@ public class RabbitMQConfig {
                 .bind(queue)
                 .to(exchange)
                 .with(NOTIFICATION_ROUTING_KEY);
-    }
-
-    @Bean
-    public MessageConverter jsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
-    }
-
-    // Define RabbitTemplate with the message converter
-    @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-        RabbitTemplate template = new RabbitTemplate(connectionFactory);
-        template.setMessageConverter(jsonMessageConverter()); // Set the message converter here
-        return template;
     }
 }
