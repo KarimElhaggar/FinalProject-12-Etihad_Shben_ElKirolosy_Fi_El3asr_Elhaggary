@@ -114,4 +114,20 @@ public class MovieController {
         return movieService.getRandomMovies(limit);
     }
 
+    @GetMapping("/movieExists/{id}")
+    public boolean movieExists(@PathVariable Long id) {
+        return movieService.getMovieById(id) != null;
+    }
+
+    @GetMapping("/getMovieAverageRating/{id}")
+    public Double getAverageRating(@PathVariable Long id){
+        return movieService.getMovieById(id).getRating();
+    }
+
+    @PutMapping("/updateMovieRating/{id}/{rating}")
+    public String updateMovieRating(@PathVariable Long id, @PathVariable Double rating){
+        movieService.updateMovieRating(id, rating);
+        return "Movie rating updated successfully!";
+    }
+
 }
