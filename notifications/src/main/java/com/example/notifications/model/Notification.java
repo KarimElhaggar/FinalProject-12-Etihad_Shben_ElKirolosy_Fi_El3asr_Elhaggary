@@ -48,4 +48,18 @@ public class Notification {
         this.userId = userId;
         this.movieId = movieId;
     }
+
+    public Notification(
+            String notification,
+            NotificationType notificationType,
+            boolean markAsRead,
+            LocalDateTime notificationDate,
+            Long userId, Long movieId) {
+        this.notification = notification;
+        this.notificationType = notificationType;
+        this.markAsRead = markAsRead;
+        this.notificationDate = notificationDate;
+        this.userId = userId;
+        this.movieId = movieId;
+    }
 }

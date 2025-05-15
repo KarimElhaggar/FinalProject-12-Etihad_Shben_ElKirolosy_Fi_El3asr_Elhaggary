@@ -4,20 +4,19 @@ import com.example.notifications.command.CreateNotificationCommand;
 import com.example.notifications.command.NotificationCommand;
 import com.example.notifications.command.SendNotificationCommand;
 import com.example.notifications.command.ToggleReadCommand;
-import com.example.notifications.model.Notification;
 import com.example.notifications.constants.NotificationType;
-import com.example.notifications.repository.NotificationRepository;
-import jakarta.annotation.PostConstruct;
+import com.example.notifications.model.Notification;
 import com.example.notifications.observer.NotificationPublisher;
 import com.example.notifications.observer.NotificationSubscriber;
+import com.example.notifications.rabbitmq.RabbitMQConfig;
+import com.example.notifications.repository.NotificationRepository;
+import jakarta.annotation.PostConstruct;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class NotificationService {
@@ -83,6 +82,25 @@ public class NotificationService {
     }
 
     public void send(List<Long> userIds) {
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.NOTIFICATION_QUEUE)
+    public void sendBatch(String message) {
+        String[] arguments = message.split(";");
+
+        List<Long> ids = Arrays.stream(arguments[0].split(","))
+                .map(Long::parseLong)
+                .toList();
+
+        NotificationType type = arguments[1].equals(NotificationType.NEWMOVIE.toString())
+                ? NotificationType.NEWMOVIE
+                : arguments[1].equals(NotificationType.NEWREVIEW.toString())
+                    ? NotificationType.NEWREVIEW
+                    : NotificationType.LIKEDREVIEW;
+
+        System.out.println("Received a notification of type" + type);
+
+        sendBatch(ids, type);
     }
 
     public void sendBatch(List<Long> ids, NotificationType type) {
