@@ -22,39 +22,44 @@ public class UserController {
         this.userService = userService;
     }
 
-     @GetMapping("/all-users")
-     public List<User> getAllUsers() {
-         return userService.getAllUsers();
-     }
+    @GetMapping("/all-users")
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
 
-     @GetMapping("/{id}")
-     public User getUserById(@PathVariable Long id) {
-         return userService.getUserById(id);
-     }
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable Long id) {
+        return userService.getUserById(id);
+    }
 
-     // is this needed? also probably need to remove the try catch
-     @PostMapping
-     public ResponseEntity<?> createUser(@RequestBody UserRequest request) {
-         User.Builder builder = new User.Builder()
-                 .username(request.getUsername())
-                 .email(request.getEmail())
-                 .password(request.getPassword());
-         // Optional fields — only set if meaningful
-         if(request.getName() != null) {
-             builder.name(request.getName());
-         }
-         builder.admin(request.isAdmin());
-         builder.banned(request.isBanned());
-         builder.following(new ArrayList<>());
-         builder.followers(new ArrayList<>());
+    @GetMapping("/followers/{id}")
+    public List<Long> getUserFollowersById(@PathVariable Long id) {
+        return userService.getUserFollowersById(id);
+    }
 
-         try {
-             User user = builder.build();
-             return ResponseEntity.ok(userService.createUser(user));
-         } catch (Exception e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
-         }
-     }
+    // is this needed? also probably need to remove the try catch
+    @PostMapping
+    public ResponseEntity<?> createUser(@RequestBody UserRequest request) {
+        User.Builder builder = new User.Builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(request.getPassword());
+        // Optional fields — only set if meaningful
+        if(request.getName() != null) {
+            builder.name(request.getName());
+        }
+        builder.admin(request.isAdmin());
+        builder.banned(request.isBanned());
+        builder.following(new ArrayList<>());
+        builder.followers(new ArrayList<>());
+
+        try {
+            User user = builder.build();
+            return ResponseEntity.ok(userService.createUser(user));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
     @PutMapping("/update/{id}")
     public User updateUser(@PathVariable Long id, @RequestBody User user) {
@@ -89,5 +94,10 @@ public class UserController {
     public ResponseEntity<String> unBanUser(@PathVariable Long id) {
         userService.unBanUser(id);
         return ResponseEntity.ok("User with ID " + id + " has been unbanned.");// wa law 3ayzin by name easy bardo
+    }
+
+    @GetMapping("/userExists/{id}")
+    public boolean userExists(@PathVariable Long id){
+        return userService.getUserById(id) != null;
     }
 }
