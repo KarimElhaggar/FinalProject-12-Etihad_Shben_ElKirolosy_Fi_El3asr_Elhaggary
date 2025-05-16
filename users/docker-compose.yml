@@ -41,12 +41,12 @@ services:
       - "5540:5540"
     restart: always
 
-  nginx:
-    image: nginx
-    ports:
-      - "2727:80"
-    volumes:
-      - ./volumes/nginx/nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - users_one
-      - users_two
+#  nginx:
+#    image: nginx
+#    ports:
+#      - "2727:80"
+#    volumes:
+#      - ./volumes/nginx/nginx.conf:/etc/nginx/nginx.conf
+#    depends_on:
+#      - users_one
+#      - users_two
