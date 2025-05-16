@@ -6,11 +6,13 @@ import com.example.reviews.clients.UsersClient;
 import com.example.reviews.constants.ReviewStatus;
 import com.example.reviews.constants.NotificationType;
 import com.example.reviews.model.Review;
+import com.example.reviews.rabbitmq.RabbitMQConfig;
 import com.example.reviews.rabbitmq.RabbitMQProducer;
 import com.example.reviews.repository.ReviewRepository;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.stereotype.Service;
@@ -204,6 +206,11 @@ public class ReviewService {
         reviewRepository.deleteById(reviewId);
 
         log.info("Review with id: {} has been deleted.", reviewId);
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.USERS_QUEUE)
+    public void handleUserMessage(ReviewRequest reviewRequest) {
+        createReview(reviewRequest);
     }
 
     public Review convertDtoToReview(ReviewRequest reviewDto){
