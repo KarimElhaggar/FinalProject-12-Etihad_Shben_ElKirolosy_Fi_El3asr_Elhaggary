@@ -1,6 +1,9 @@
 package com.example.users.service;
 
+import com.example.contracts.ReviewRequest;
+import com.example.users.clients.MoviesClient;
 import com.example.users.model.User;
+import com.example.users.rabbitmq.RabbitMQProducer;
 import com.example.users.repository.UserRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -19,10 +22,14 @@ import java.util.Objects;
 public class UserService {
     private final AuthService authService;
     UserRepository userRepository;
+    private final MoviesClient moviesClient;
+    private final RabbitMQProducer rabbitMQProducer;
 
-    public UserService(UserRepository userRepository, AuthService authService) {
+    public UserService(UserRepository userRepository, AuthService authService, MoviesClient moviesClient, RabbitMQProducer rabbitMQProducer) {
         this.userRepository = userRepository;
         this.authService = authService;
+        this.moviesClient = moviesClient;
+        this.rabbitMQProducer = rabbitMQProducer;
     }
 
     @CacheEvict(value = "user_cache", key = "#userId")
@@ -57,13 +64,6 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         user.setBanned(false);
         userRepository.save(user);
-    }
-
-    //me7tain review wa notification yezwado functions fa service wa controller 3ashan a call it wa na integrate
-    @FeignClient(name = "review-service")
-    public interface ReviewClient {
-        @GetMapping("/reviews/by-movie/{movieId}")
-        List<String> getReviewsByMovie(@PathVariable("movieId") Long movieId); // hia strin for now wa change in integration
     }
 
     @CachePut(value = "user_cache", key = "#user.id")
@@ -226,9 +226,23 @@ public class UserService {
         }
     }
 
-    @FeignClient(name = "notification-service")
-    public interface NotificationClient {
-        @PostMapping("/notifications/subscribe")
-        void subscribe(@RequestParam("userId") Long userId, @RequestParam("topicId") Long topicId);
+    public void subscribeToNotification(Long userId, Long movieId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+        moviesClient.addUserToInterestedUserIds(movieId, userId);
+    }
+
+    public void addReview(Long userId, Long movieId, String reviewDescription, Double rating) {
+        ReviewRequest reviewRequest = new ReviewRequest(rating, 0L, "pending", reviewDescription, userId, movieId);
+        if (userId == null || movieId == null || reviewDescription == null || rating == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "All fields are required.");
+        }
+        if(!moviesClient.movieExists(movieId)){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found.");
+        }
+        if(!userRepository.existsById(userId)){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
+        }
+        rabbitMQProducer.sendReviewRequest(reviewRequest);
     }
 }

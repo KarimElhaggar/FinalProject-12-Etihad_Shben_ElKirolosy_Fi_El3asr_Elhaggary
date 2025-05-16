@@ -1,5 +1,6 @@
 package com.example.reviews.controller;
 
+import com.example.contracts.ReviewRequest;
 import com.example.reviews.model.Review;
 import com.example.reviews.service.ReviewService;
 import jakarta.validation.Valid;
@@ -44,8 +45,8 @@ public class ReviewController {
     }
 
     @PostMapping
-    public ResponseEntity<Review> createReview(@RequestBody @Valid Review review) {
-        Review savedReview = reviewService.createReview(review);
+    public ResponseEntity<Review> createReview(@RequestBody @Valid ReviewRequest reviewDto) {
+        Review savedReview = reviewService.createReview(reviewDto);
         return ResponseEntity.ok(savedReview);
     }
 
@@ -58,8 +59,14 @@ public class ReviewController {
     @PutMapping("/{reviewId}")
     public ResponseEntity<Review> updateReview(
             @PathVariable String reviewId,
-            @RequestBody Review updatedReview) {
-        Review review = reviewService.updateReview(reviewId, updatedReview);
+            @RequestBody ReviewRequest updatedReviewDto) {
+        Review review = reviewService.updateReview(reviewId, updatedReviewDto);
+        return ResponseEntity.ok(review);
+    }
+
+    @PutMapping("/{reviewId}/approve")
+    public ResponseEntity<Review> approveReview(@PathVariable String reviewId) {
+        Review review = reviewService.approveReview(reviewId);
         return ResponseEntity.ok(review);
     }
 
