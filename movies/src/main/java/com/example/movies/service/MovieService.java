@@ -111,4 +111,14 @@ public class MovieService {
 
         movieRepository.save(movie);
     }
+
+    public void addUserToInterestedUserIds(Long movieId, Long userId) {
+        Movie movie = movieRepository.findById(movieId).orElse(null);
+
+        if(movie == null)
+            throw new IllegalArgumentException("Movie not found!");
+
+        movie.getInterestedUserIds().add(userId);
+        movieRepository.save(movie);
+    }
 }
