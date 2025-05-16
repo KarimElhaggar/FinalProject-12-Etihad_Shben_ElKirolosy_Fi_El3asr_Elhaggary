@@ -204,7 +204,7 @@ public class UserService {
     }
 
     public void addReview(Long userId, Long movieId, String reviewDescription, Double rating) {
-        ReviewRequest reviewRequest = new ReviewRequest(rating, 0L, "pending", reviewDescription, userId, movieId, new ArrayList<Long>());
+        ReviewRequest reviewRequest = new ReviewRequest(rating, 0L, "pending", reviewDescription, userId, movieId);
         if (userId == null || movieId == null || reviewDescription == null || rating == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "All fields are required.");
         }

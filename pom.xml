@@ -47,6 +47,7 @@
         <module>movies</module>
         <module>reviews</module>
         <module>notifications</module>
+        <module>sharedContracts</module>
     </modules>
 
 </project>

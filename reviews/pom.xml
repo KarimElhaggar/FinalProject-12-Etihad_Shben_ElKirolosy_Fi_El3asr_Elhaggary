@@ -87,17 +87,12 @@
 			<artifactId>spring-rabbit-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>org.example</groupId>
-            <artifactId>LoggedIn</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <!--		<dependency>-->
-<!--			<groupId>org.verapdf</groupId>-->
-<!--			<artifactId>validation-jakarta</artifactId>-->
-<!--			<version>1.26.1</version>-->
-<!--		</dependency>-->
+		<dependency>
+			<groupId>com.example</groupId>
+			<artifactId>sharedContracts</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
