@@ -126,12 +126,6 @@ public class ReviewService {
 
         rabbitMQProducer.sendToNotifications(followers, NotificationType.NEWREVIEW);
 
-        Double movieAVGRating = moviesClient.getMovieAverageRating(review.getMovieId());
-        Integer reviewsCountByMovieID = reviewRepository.findReviewsByMovieId(review.getMovieId()).size();
-        Double sum = movieAVGRating * reviewsCountByMovieID + review.getRating();
-        Double newAverage = sum / (reviewsCountByMovieID + 1);
-        moviesClient.updateMovie(review.getMovieId(), newAverage);
-
         log.info("Review created for user with id: {} and movie with id: {}", review.getUserId(), review.getMovieId());
 
         return reviewRepository.save(review);
@@ -170,16 +164,40 @@ public class ReviewService {
         existing.setUserId(updatedReview.getUserId() != null ? updatedReview.getUserId() : existing.getUserId());
         existing.setMovieId(updatedReview.getMovieId() != null ? updatedReview.getMovieId() : existing.getMovieId());
 
-        //calculates a new average rating for the movie by subtracting the old rating and adding the new rating
-        Double movieAVGRating = moviesClient.getMovieAverageRating(existing.getMovieId());
-        Integer reviewsCountByMovieID = reviewRepository.findReviewsByMovieId(existing.getMovieId()).size();
-        Double sum = movieAVGRating * reviewsCountByMovieID - oldRating + existing.getRating();
-        Double newAverage = sum / reviewsCountByMovieID;
-        moviesClient.updateMovie(existing.getMovieId(), newAverage);
+        if(existing.getStatus() == ReviewStatus.APPROVED) {
+
+            //calculates a new average rating for the movie by subtracting the old rating and adding the new rating
+            Double movieAVGRating = moviesClient.getMovieAverageRating(existing.getMovieId());
+            Integer reviewsCountByMovieID = reviewRepository.findReviewsByMovieId(existing.getMovieId()).size();
+            Double sum = movieAVGRating * reviewsCountByMovieID - oldRating + existing.getRating();
+            Double newAverage = sum / reviewsCountByMovieID;
+            moviesClient.updateMovie(existing.getMovieId(), newAverage);
+
+        }
 
         log.info("Review with id: {} and data: {} has been updated.", reviewId, updatedReview);
 
         return reviewRepository.save(existing);
+    }
+
+    public Review approveReview(String reviewId) {
+        log.info("Approving review with id: {}", reviewId);
+
+        Review review = getReviewById(reviewId);
+
+        Double movieAVGRating = moviesClient.getMovieAverageRating(review.getMovieId());
+        Integer reviewsCountByMovieID = reviewRepository.findReviewsByMovieId(review.getMovieId()).size();
+        Double sum = movieAVGRating * reviewsCountByMovieID + review.getRating();
+        Double newAverage = sum / (reviewsCountByMovieID + 1);
+        moviesClient.updateMovie(review.getMovieId(), newAverage);
+
+        review.setStatus(ReviewStatus.APPROVED);
+
+        review = reviewRepository.save(review);
+
+        log.info("Review with id: {} has been approved.", reviewId);
+
+        return review;
     }
 
     public void deleteReview(String reviewId) {

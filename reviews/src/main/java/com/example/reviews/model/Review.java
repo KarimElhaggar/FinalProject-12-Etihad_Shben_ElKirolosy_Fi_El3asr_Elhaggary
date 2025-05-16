@@ -30,7 +30,7 @@ public class Review {
     private Long likesCount;
 
     @NotNull(message = "Status is required")
-    private ReviewStatus status;
+    private ReviewStatus status = ReviewStatus.PENDING;
 
     @NotBlank(message = "Review description is required")
     private String reviewDescription;
