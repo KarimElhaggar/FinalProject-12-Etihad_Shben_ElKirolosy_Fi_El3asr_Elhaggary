@@ -100,4 +100,17 @@ public class UserController {
     public boolean userExists(@PathVariable Long id){
         return userService.getUserById(id) != null;
     }
+
+    @PutMapping("/subscribeToNotification/{userId}/{movieId}")
+    public String subscribeToNotification(@PathVariable Long userId, @PathVariable Long movieId) {
+        userService.subscribeToNotification(userId, movieId);
+        return "Subscribed to the movie notifications successfully!";
+    }
+
+    @PostMapping("/addReview/{userId}/{movieId}")
+    public String addReview(@PathVariable Long userId, @PathVariable Long movieId, @RequestBody String reviewDescription, @RequestBody Double rating) {
+        userService.addReview(userId, movieId, reviewDescription, rating);
+        return "Review added successfully!";
+    }
+
 }

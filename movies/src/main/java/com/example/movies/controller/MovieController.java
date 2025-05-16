@@ -130,4 +130,9 @@ public class MovieController {
         return "Movie rating updated successfully!";
     }
 
+    @PutMapping("/addUserToInterestedUserIds/{movieId}/{userId}")
+    public String addUserToInterestedUserIds(@PathVariable Long movieId, @PathVariable Long userId) {
+        movieService.addUserToInterestedUserIds(movieId, userId);
+        return "User added to interested user IDs successfully!";
+    }
 }

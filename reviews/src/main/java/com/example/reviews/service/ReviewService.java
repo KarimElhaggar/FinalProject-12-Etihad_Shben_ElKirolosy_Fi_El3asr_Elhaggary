@@ -1,13 +1,16 @@
 package com.example.reviews.service;
 
+import com.example.contracts.ReviewRequest;
 import com.example.reviews.clients.UsersClient;
 import com.example.reviews.constants.ReviewStatus;
 import com.example.reviews.constants.NotificationType;
 import com.example.reviews.model.Review;
+import com.example.reviews.rabbitmq.RabbitMQConfig;
 import com.example.reviews.rabbitmq.RabbitMQProducer;
 import com.example.reviews.repository.ReviewRepository;
 
 import lombok.AllArgsConstructor;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.stereotype.Service;
@@ -130,5 +133,26 @@ public class ReviewService {
 
         //Todo update movie rating
         reviewRepository.deleteById(reviewId);
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.USERS_QUEUE)
+    public void handleUserMessage(ReviewRequest reviewRequest) {
+        Review review = convertDtoToReview(reviewRequest);
+
+        createReview(review);
+    }
+
+    public Review convertDtoToReview(ReviewRequest reviewDto){
+        Review review = new Review();
+
+        review.setRating(reviewDto.getRating());
+        review.setLikesCount(reviewDto.getLikesCount());
+        review.setStatus(ReviewStatus.valueOf(reviewDto.getStatus().toUpperCase()));
+        review.setReviewDescription(reviewDto.getReviewDescription());
+        review.setUserId(reviewDto.getUserId());
+        review.setMovieId(reviewDto.getMovieId());
+        review.setLikedUsers(reviewDto.getLikedUsers() != null ? reviewDto.getLikedUsers() : new ArrayList<>());
+
+        return review;
     }
 }
