@@ -2,12 +2,16 @@ package com.example.users.service;
 
 import com.example.users.model.User;
 import com.example.users.repository.UserRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,6 +25,7 @@ public class UserService {
         this.authService = authService;
     }
 
+    @CacheEvict(value = "user_cache", key = "#userId")
     public void banUser(Long userId) {
         User admin = authService.getLoggedInUser();
 
@@ -37,6 +42,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @CacheEvict(value = "user_cache", key = "#userId")
     public void unBanUser(Long userId) {
         User admin = authService.getLoggedInUser();
 
@@ -60,6 +66,7 @@ public class UserService {
         List<String> getReviewsByMovie(@PathVariable("movieId") Long movieId); // hia strin for now wa change in integration
     }
 
+    @CachePut(value = "user_cache", key = "#user.id")
     public User createUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is already taken");
@@ -69,6 +76,8 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is already taken");
         }
 
+        String hashed = PasswordHasherSingleton.getInstance().hash(user.getPassword());
+        user.setPassword(hashed);
         return userRepository.save(user);
     }
 
@@ -76,9 +85,26 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    @Cacheable(value = "user_cache", key = "#id")
     public User getUserById(Long id) {
-        return userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        // Detach Hibernate proxies by creating a clean copy
+        User cleanUser = new User();
+        cleanUser.setId(user.getId());
+        cleanUser.setName(user.getName());
+        cleanUser.setUsername(user.getUsername());
+        cleanUser.setEmail(user.getEmail());
+        cleanUser.setPassword(user.getPassword());
+        cleanUser.setAdmin(user.isAdmin());
+        cleanUser.setBanned(user.isBanned());
+
+        // Convert followers and following into regular List<User> or List<Long> as needed
+        cleanUser.setFollowers(new ArrayList<>(user.getFollowers()));
+        cleanUser.setFollowing(new ArrayList<>(user.getFollowing()));
+
+        return cleanUser;
     }
 
     public List<Long> getUserFollowersById(Long id) {
@@ -88,6 +114,7 @@ public class UserService {
         return user.getFollowers();
     }
 
+    @CachePut(value = "user_cache", key = "#id")
     public User updateUser(Long id, User user) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
@@ -120,6 +147,7 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
+    @CacheEvict(value = "user_cache", key = "#id")
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
@@ -138,6 +166,7 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    @CacheEvict(value = "user_cache", key = "#followUserId")
     public void followUser(Long followUserId) {
 //        User user = userRepository.findById(userId)
 //                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
@@ -173,6 +202,7 @@ public class UserService {
         }
     }
 
+    @CacheEvict(value = "user_cache", key = "#followUserId")
     public void unfollowUser(Long followUserId) {
 //        User user = userRepository.findById(userId)
 //                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));

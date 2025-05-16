@@ -18,12 +18,12 @@ public class User {
     private boolean admin;
     private boolean banned;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_following_ids", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "following_id")
     private List<Long> following = new ArrayList<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_follower_ids", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "follower_id")
     private List<Long> followers = new ArrayList<>();
@@ -48,8 +48,8 @@ public class User {
     public String getUsername() { return username; }
     public String getEmail() { return email; }
     public String getPassword() { return password; }
-    public List<Long> getFollowing() { return following; }
-    public List<Long> getFollowers() { return followers; }
+    public List<Long> getFollowing() { return new ArrayList<>(this.following); }
+    public List<Long> getFollowers() { return new ArrayList<>(this.followers); }
     public boolean isAdmin() { return admin; }
     public boolean isBanned() { return banned; }
 
