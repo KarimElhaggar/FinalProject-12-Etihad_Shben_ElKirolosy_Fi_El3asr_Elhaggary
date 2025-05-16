@@ -1,7 +1,6 @@
 package com.example.reviews.model;
 
 import com.example.reviews.constants.ReviewStatus;
-import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -30,7 +29,7 @@ public class Review {
     private Long likesCount;
 
     @NotNull(message = "Status is required")
-    private ReviewStatus status;
+    private ReviewStatus status = ReviewStatus.PENDING;
 
     @NotBlank(message = "Review description is required")
     private String reviewDescription;

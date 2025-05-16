@@ -95,4 +95,9 @@ public class UserController {
         userService.unBanUser(id);
         return ResponseEntity.ok("User with ID " + id + " has been unbanned.");// wa law 3ayzin by name easy bardo
     }
+
+    @GetMapping("/userExists/{id}")
+    public boolean userExists(@PathVariable Long id){
+        return userService.getUserById(id) != null;
+    }
 }

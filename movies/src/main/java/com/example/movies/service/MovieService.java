@@ -94,4 +94,15 @@ public class MovieService {
         List<Movie> movies = movieRepository.findRandomMovies(limit);
         return movies;
     }
+
+    public void updateMovieRating(Long id, Double rating) {
+        Movie movie = movieRepository.findById(id).orElse(null);
+
+        if(movie == null)
+            throw new IllegalArgumentException("Movie not found!");
+
+        movie.setRating(rating);
+
+        movieRepository.save(movie);
+    }
 }
