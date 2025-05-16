@@ -1,5 +1,6 @@
 package com.example.notifications.model;
 
+import com.example.notifications.constants.NotificationType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,22 +25,36 @@ public class Notification {
     private Long userId;
     private Long movieId;
 
-    public Notification(String notification, NotificationType notificationType, boolean markAsRead, LocalDateTime notificationDate) {
+    public Notification(String notification, NotificationType notificationType, LocalDateTime notificationDate) {
         this.notification = notification;
         this.notificationType = notificationType;
-        this.markAsRead = markAsRead;
+        this.markAsRead = false;
         this.notificationDate = notificationDate;
     }
 
-    public Notification(String notification, NotificationType notificationType, boolean markAsRead, LocalDateTime notificationDate, Long userId) {
+    public Notification(String notification, NotificationType notificationType, LocalDateTime notificationDate, Long userId) {
         this.notification = notification;
         this.notificationType = notificationType;
-        this.markAsRead = markAsRead;
+        this.markAsRead = false;
         this.notificationDate = notificationDate;
         this.userId = userId;
     }
 
-    public Notification(String notification, NotificationType notificationType, boolean markAsRead, LocalDateTime notificationDate, Long userId, Long movieId) {
+    public Notification(String notification, NotificationType notificationType, LocalDateTime notificationDate, Long userId, Long movieId) {
+        this.notification = notification;
+        this.notificationType = notificationType;
+        this.markAsRead = false;
+        this.notificationDate = notificationDate;
+        this.userId = userId;
+        this.movieId = movieId;
+    }
+
+    public Notification(
+            String notification,
+            NotificationType notificationType,
+            boolean markAsRead,
+            LocalDateTime notificationDate,
+            Long userId, Long movieId) {
         this.notification = notification;
         this.notificationType = notificationType;
         this.markAsRead = markAsRead;
