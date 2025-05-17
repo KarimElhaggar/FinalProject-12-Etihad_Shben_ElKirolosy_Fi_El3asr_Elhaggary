@@ -1,9 +1,11 @@
 package com.example.notifications.service;
 
 import com.example.notifications.command.NotificationCommand;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Component
 public class NotificationCommandInvoker {
     private NotificationCommand command;
     private final Queue<NotificationCommand> queue = new LinkedList<>();

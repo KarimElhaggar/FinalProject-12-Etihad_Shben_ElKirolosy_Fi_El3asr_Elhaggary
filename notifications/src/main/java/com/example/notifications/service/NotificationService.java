@@ -11,6 +11,7 @@ import com.example.notifications.observer.NotificationSubscriber;
 import com.example.notifications.rabbitmq.RabbitMQConfig;
 import com.example.notifications.repository.NotificationRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.Method;
 import java.util.*;
 
+@Slf4j
 @Service
 public class NotificationService {
 
@@ -30,6 +32,7 @@ public class NotificationService {
     @Autowired
     private NotificationSubscriber subscriber;
 
+    @Autowired
     private final NotificationCommandInvoker invoker;
 
     public NotificationService(NotificationRepository repo, NotificationCommandInvoker invoker) {
@@ -39,53 +42,80 @@ public class NotificationService {
 
     @PostConstruct
     public void init() {
+        log.info("PostConstruct init(): Subscribing subscriber to publisher.");
+
         publisher.subscribe(subscriber);
     }
 
     public Notification saveNotification(Notification notification) {
+        log.info("Saving notification for userId: {}", notification.getUserId());
+
         return notificationRepository.save(notification);
     }
 
     public List<Notification> getAllNotifications() {
+        log.info("Fetching all notifications");
+
         return notificationRepository.findAll();
     }
 
     public List<Notification> getNotificationsByUserId(Long userId) {
+        log.info("Fetching notifications for userId: {}", userId);
+
         return notificationRepository.findByUserId(userId);
     }
 
     public Optional<Notification> getNotificationById(Long id) {
+        log.info("Fetching notification by id: {}", id);
+
         Optional<Notification> optional = notificationRepository.findById(id);
         optional.ifPresent(notification -> {
+
+            log.info("Checking if notification {} is already marked as read", id);
+
             if (!notification.isMarkAsRead()) {
+
+                log.info("Marking notification {} as read", id);
+
                 notification.setMarkAsRead(true);
                 notificationRepository.save(notification);
             }
         });
+
         return optional;
     }
 
     public void markAsRead(Long id) {
+        log.info("Marking notification {} as read", id);
+
         Notification n = notificationRepository.findById(id).orElseThrow();
         NotificationCommand command = new ToggleReadCommand(n, true);
         invoker.setCommand(command);
         invoker.executeCommand();
         notificationRepository.save(n);
+
+        log.info("Notification {} marked as read and saved", id);
     }
 
     public void markAsUnread(Long id) {
+        log.info("Marking notification {} as unread", id);
+
         Notification n = notificationRepository.findById(id).orElseThrow();
         NotificationCommand command = new ToggleReadCommand(n, false);
         invoker.setCommand(command);
         invoker.executeCommand();
         notificationRepository.save(n);
+
+        log.info("Notification {} marked as unread and saved", id);
     }
 
     public void send(List<Long> userIds) {
+        log.info("send(List<Long>) called with userIds: {}", userIds);
     }
 
     @RabbitListener(queues = RabbitMQConfig.NOTIFICATION_QUEUE)
     public void sendBatch(String message) {
+        log.info("Received message on RabbitMQ queue: {}", message);
         String[] arguments = message.split(";");
 
         List<Long> ids = Arrays.stream(arguments[0].split(","))
@@ -95,44 +125,55 @@ public class NotificationService {
         NotificationType type = arguments[1].equals(NotificationType.NEWMOVIE.toString())
                 ? NotificationType.NEWMOVIE
                 : arguments[1].equals(NotificationType.NEWREVIEW.toString())
-                    ? NotificationType.NEWREVIEW
-                    : NotificationType.LIKEDREVIEW;
+                ? NotificationType.NEWREVIEW
+                : NotificationType.LIKEDREVIEW;
 
-        System.out.println("Received a notification of type" + type);
+        //System.out.println("Received a notification of type" + type);
+        log.info("Parsed notification type: {}. Sending to userIds: {}", type, ids);
 
         sendBatch(ids, type);
     }
 
     public void sendBatch(List<Long> ids, NotificationType type) {
+        log.info("Sending batch notifications of type {} to userIds: {}", type, ids);
+
         for (Long userId : ids) {
             NotificationCommand created = new CreateNotificationCommand(this, type, userId);
             invoker.addCommand(created);
         }
         NotificationCommand command = new SendNotificationCommand(this, ids);
         invoker.executeAll();
+
+        log.info("Finished executing batch notification commands for type {}", type);
     }
 
     public List<Notification> getUnreadNotificationsByUserId(Long userId) {
+        log.info("Fetching unread notifications for userId: {}", userId);
         return notificationRepository.findByUserIdAndMarkAsReadFalse(userId);
     }
 
     public List<Notification> getUnreadByType(Long userId, NotificationType type) {
+        log.info("Fetching unread notifications for userId: {} and type: {}", userId, type);
         return notificationRepository.findUnreadByType(userId, type);
     }
 
     public void deleteNotification(Long id) {
+        log.info("Deleting notification with id: {}", id);
         notificationRepository.deleteById(id);
     }
 
     public void deleteAllByUserId(Long userId) {
+        log.info("Deleting all notifications for userId: {}", userId);
         notificationRepository.deleteByUserId(userId);
     }
 
     public void triggerObserverNotification(String message, Long userId, Long movieId, NotificationType type) {
+        log.info("Triggering observer notification with message: '{}', userId: {}, movieId: {}, type: {}", message, userId, movieId, type);
         publisher.notifyObservers(message, userId, movieId, type);
     }
 
     public List<Notification> filterNotificationsBy(String methodName, Object expectedValue) {
+        log.info("Filtering notifications by method: {} with expectedValue: {}", methodName, expectedValue);
         List<Notification> allNotifications = notificationRepository.findAll();
         List<Notification> filtered = new ArrayList<>();
 
@@ -144,10 +185,13 @@ public class NotificationService {
                     filtered.add(notification);
                 }
             } catch (Exception e) {
-                System.err.println("Reflection error: " + e.getMessage());
+                //System.err.println("Reflection error: " + e.getMessage());
+                log.error("Reflection error {}", e.getMessage(), e);
             }
         }
 
+        log.info("Found {} matching notifications after filter", filtered.size());
         return filtered;
     }
 }
+
