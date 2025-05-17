@@ -15,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+    private UserRequest userRequest = new UserRequest();
 
     private UserService userService;
 
@@ -35,6 +36,12 @@ public class UserController {
     @GetMapping("/followers/{id}")
     public List<Long> getUserFollowersById(@PathVariable Long id) {
         return userService.getUserFollowersById(id);
+    }
+
+    @GetMapping("/{id}/email")
+    public ResponseEntity<UserRequest> getUserEmailById(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        return ResponseEntity.ok(new UserRequest(user.getId(), user.getEmail()));
     }
 
     // is this needed? also probably need to remove the try catch

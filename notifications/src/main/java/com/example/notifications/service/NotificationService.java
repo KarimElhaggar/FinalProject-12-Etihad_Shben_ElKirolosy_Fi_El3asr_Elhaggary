@@ -5,6 +5,7 @@ import com.example.notifications.command.NotificationCommand;
 import com.example.notifications.command.SendNotificationCommand;
 import com.example.notifications.command.ToggleReadCommand;
 import com.example.notifications.constants.NotificationType;
+import com.example.notifications.feign.RemoteUserService;
 import com.example.notifications.model.Notification;
 import com.example.notifications.observer.NotificationPublisher;
 import com.example.notifications.observer.NotificationSubscriber;
@@ -23,6 +24,11 @@ import java.util.*;
 @Service
 public class NotificationService {
 
+    private final RemoteUserService remoteUserService;
+
+    @Autowired
+    private final EmailService emailService;
+
     @Autowired
     private NotificationRepository notificationRepository;
 
@@ -35,9 +41,18 @@ public class NotificationService {
     @Autowired
     private final NotificationCommandInvoker invoker;
 
-    public NotificationService(NotificationRepository repo, NotificationCommandInvoker invoker) {
-        this.notificationRepository = repo;
+    public NotificationService(RemoteUserService remoteUserService, NotificationRepository notificationRepository,
+                               NotificationPublisher publisher,
+                               NotificationSubscriber subscriber,
+                               NotificationCommandInvoker invoker,
+                               EmailService emailService
+    ) {
+        this.remoteUserService = remoteUserService;
+        this.notificationRepository = notificationRepository;
+        this.publisher = publisher;
+        this.subscriber = subscriber;
         this.invoker = invoker;
+        this.emailService = emailService;
     }
 
     @PostConstruct
@@ -109,10 +124,6 @@ public class NotificationService {
         log.info("Notification {} marked as unread and saved", id);
     }
 
-    public void send(List<Long> userIds) {
-        log.info("send(List<Long>) called with userIds: {}", userIds);
-    }
-
     @RabbitListener(queues = RabbitMQConfig.NOTIFICATION_QUEUE)
     public void sendBatch(String message) {
         log.info("Received message on RabbitMQ queue: {}", message);
@@ -136,12 +147,19 @@ public class NotificationService {
 
     public void sendBatch(List<Long> ids, NotificationType type) {
         log.info("Sending batch notifications of type {} to userIds: {}", type, ids);
-
+        List<String> mails = new ArrayList<>();
         for (Long userId : ids) {
             NotificationCommand created = new CreateNotificationCommand(this, type, userId);
             invoker.addCommand(created);
+            try {
+                String to = remoteUserService.getUserEmailById(userId).getEmail();
+                mails.add(to);
+//              emailService.sendNotificationEmail(to, type);
+            } catch (Exception e) {
+                log.error("Failed to send email to userId {}: {}", userId, e.getMessage(), e);
+            }
         }
-        NotificationCommand command = new SendNotificationCommand(this, ids);
+        NotificationCommand command = new SendNotificationCommand(mails, type, emailService);
         invoker.executeAll();
 
         log.info("Finished executing batch notification commands for type {}", type);
@@ -192,6 +210,9 @@ public class NotificationService {
 
         log.info("Found {} matching notifications after filter", filtered.size());
         return filtered;
+    }
+
+    public void send(List<String> userEmails, NotificationType type) {
     }
 }
 

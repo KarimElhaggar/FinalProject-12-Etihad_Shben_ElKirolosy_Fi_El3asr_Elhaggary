@@ -25,6 +25,9 @@ public class UserRequest {
         this.banned = banned;
     }
 
+    public UserRequest(Long id, String email) {
+    }
+
     // Getters and Setters
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
