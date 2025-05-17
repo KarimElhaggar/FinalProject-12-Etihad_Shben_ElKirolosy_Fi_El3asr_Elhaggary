@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigateway-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: apigateway-service
+  template:
+    metadata:
+      labels:
+        app: apigateway-service
+    spec:
+      containers:
+        - name: apigateway-service
+          image: hazemanwar210/apigateway
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: k8s
+            - name: SPRING_MAIN_WEB_APPLICATION_TYPE
+              value: reactive
+
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_0_ID
+              value: movies-service
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_0_URI
+              value: http://movies-service:8080
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0
+              value: Path=/movies/**
+
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_1_ID
+              value: reviews-service
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_1_URI
+              value: http://reviews-service:8080
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0
+              value: Path=/reviews/**
+
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_2_ID
+              value: users-service
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_2_URI
+              value: http://users-service:8080
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0
+              value: Path=/users/**
+
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_3_ID
+              value: notifications-service
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_3_URI
+              value: http://notifications-service:8080
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0
+              value: Path=/notifications/**
