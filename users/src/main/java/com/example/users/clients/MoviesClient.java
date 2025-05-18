@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
-@FeignClient(name = "movies-service")
+@FeignClient(name = "movies-service", url = "http://movies-service:8086")
 public interface MoviesClient {
 
     @PutMapping("/movies/addUserToInterestedUserIds/{movieId}/{userId}")

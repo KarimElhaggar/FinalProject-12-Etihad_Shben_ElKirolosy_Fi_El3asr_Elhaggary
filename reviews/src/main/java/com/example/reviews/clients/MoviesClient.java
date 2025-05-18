@@ -4,7 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "movies-service")
+@FeignClient(name = "movies-service", url = "http://movies-service:8086")
 public interface MoviesClient {
 
     @GetMapping("/movies/movieExists/{id}")
