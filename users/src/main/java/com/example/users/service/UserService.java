@@ -6,6 +6,7 @@ import com.example.users.model.User;
 import com.example.users.rabbitmq.RabbitMQProducer;
 import com.example.users.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -27,6 +28,7 @@ public class UserService {
     private final MoviesClient moviesClient;
     private final RabbitMQProducer rabbitMQProducer;
 
+    @Autowired
     public UserService(UserRepository userRepository, AuthService authService, MoviesClient moviesClient, RabbitMQProducer rabbitMQProducer) {
         this.userRepository = userRepository;
         this.authService = authService;
