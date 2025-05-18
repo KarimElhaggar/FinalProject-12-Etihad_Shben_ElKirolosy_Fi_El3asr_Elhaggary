@@ -42,7 +42,7 @@ spec:
             - name: SPRING_CLOUD_GATEWAY_ROUTES_2_URI
               value: http://users-service:8085
             - name: SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0
-              value: Path=/users/**
+              value: Path=/users/**,/auth/**
 
             - name: SPRING_CLOUD_GATEWAY_ROUTES_3_ID
               value: notifications-service
@@ -50,3 +50,4 @@ spec:
               value: http://notifications-service:8083
             - name: SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0
               value: Path=/notifications/**
+
