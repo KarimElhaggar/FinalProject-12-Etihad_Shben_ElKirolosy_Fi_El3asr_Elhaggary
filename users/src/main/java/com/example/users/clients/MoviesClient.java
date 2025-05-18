@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 @FeignClient(name = "movies-service")
 public interface MoviesClient {
 
-    @PutMapping("/addUserToInterestedUserIds/{movieId}/{userId}")
+    @PutMapping("/movies/addUserToInterestedUserIds/{movieId}/{userId}")
     String addUserToInterestedUserIds(@PathVariable Long movieId, @PathVariable Long userId);
 
-    @GetMapping("/movieExists/{id}")
+    @GetMapping("/movies/movieExists/{id}")
     boolean movieExists(@PathVariable long id);
 }

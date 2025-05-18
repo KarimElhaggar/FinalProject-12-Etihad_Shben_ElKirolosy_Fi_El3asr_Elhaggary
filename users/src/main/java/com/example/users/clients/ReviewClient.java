@@ -10,6 +10,6 @@ import java.util.List;
 //me7tain review wa notification yezwado functions fa service wa controller 3ashan a call it wa na integrate
 @FeignClient(name = "reviews-service")
 public interface ReviewClient {
-    @GetMapping("/movie/{movieId}")
+    @GetMapping("/reviews/movie/{movieId}")
     ResponseEntity<List<Long>> getReviewsByMovie(@PathVariable("movieId") Long movieId); // hia strin for now wa change in integration
 }
