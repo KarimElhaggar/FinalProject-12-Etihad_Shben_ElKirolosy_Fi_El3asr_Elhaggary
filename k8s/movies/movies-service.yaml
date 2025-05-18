@@ -7,5 +7,5 @@ spec:
   selector:
     app: movies-service
   ports:
-    - port: 8080
-      targetPort: 8086
+    - port: 8086
+      targetPort: 8080

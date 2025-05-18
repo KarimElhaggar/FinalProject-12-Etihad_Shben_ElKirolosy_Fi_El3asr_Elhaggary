@@ -32,25 +32,23 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
-    @Autowired
-    private NotificationPublisher publisher;
-
-    @Autowired
-    private NotificationSubscriber subscriber;
+//    @Autowired
+//    private NotificationPublisher publisher;
+//
+//    @Autowired
+//    private NotificationSubscriber subscriber;
 
     @Autowired
     private final NotificationCommandInvoker invoker;
 
     public NotificationService(RemoteUserService remoteUserService, NotificationRepository notificationRepository,
-                               NotificationPublisher publisher,
-                               NotificationSubscriber subscriber,
                                NotificationCommandInvoker invoker,
                                EmailService emailService
     ) {
         this.remoteUserService = remoteUserService;
         this.notificationRepository = notificationRepository;
-        this.publisher = publisher;
-        this.subscriber = subscriber;
+//        this.publisher = publisher;
+//        this.subscriber = subscriber;
         this.invoker = invoker;
         this.emailService = emailService;
     }
@@ -59,7 +57,7 @@ public class NotificationService {
     public void init() {
         log.info("PostConstruct init(): Subscribing subscriber to publisher.");
 
-        publisher.subscribe(subscriber);
+//        publisher.subscribe(subscriber);
     }
 
     public Notification saveNotification(Notification notification) {
@@ -187,7 +185,7 @@ public class NotificationService {
 
     public void triggerObserverNotification(String message, Long userId, Long movieId, NotificationType type) {
         log.info("Triggering observer notification with message: '{}', userId: {}, movieId: {}, type: {}", message, userId, movieId, type);
-        publisher.notifyObservers(message, userId, movieId, type);
+        //publisher.notifyObservers(message, userId, movieId, type);
     }
 
     public List<Notification> filterNotificationsBy(String methodName, Object expectedValue) {

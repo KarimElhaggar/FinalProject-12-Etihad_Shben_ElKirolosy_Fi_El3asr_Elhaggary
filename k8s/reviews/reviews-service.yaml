@@ -7,5 +7,5 @@ spec:
   selector:
     app: reviews-service
   ports:
-    - port: 8080
-      targetPort: 8084
+    - port: 8084
+      targetPort: 8080
