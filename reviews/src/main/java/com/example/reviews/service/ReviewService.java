@@ -235,7 +235,9 @@ public class ReviewService {
 
     public Review convertDtoToReview(ReviewRequest reviewDto){
         Review review = new Review();
-
+        if(reviewDto.getRating()==null || reviewDto.getStatus() == null || reviewDto.getReviewDescription() == null || reviewDto.getUserId() == null || reviewDto.getMovieId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong Review Format");
+        }
         review.setRating(reviewDto.getRating());
         review.setLikesCount(reviewDto.getLikesCount());
         review.setStatus(ReviewStatus.valueOf(reviewDto.getStatus().toUpperCase()));

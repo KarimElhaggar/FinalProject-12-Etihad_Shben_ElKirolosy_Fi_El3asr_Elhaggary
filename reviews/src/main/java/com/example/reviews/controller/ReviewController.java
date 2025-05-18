@@ -21,7 +21,7 @@ public class ReviewController {
     public ResponseEntity<List<Review>> getReviewsByUser(@PathVariable Long userId) {
         List<Review> reviews = reviewService.viewReviewsByUser(userId);
         return ResponseEntity.ok(reviews);
-    }
+    } //
 
     @PostMapping("/{reviewId}/toggle-like/{userId}")
     public ResponseEntity<Review> toggleLike(
@@ -30,25 +30,25 @@ public class ReviewController {
 
         Review updatedReview = reviewService.toggleLike(userId, reviewId);
         return ResponseEntity.ok(updatedReview);
-    }
+    } //
 
     @GetMapping("/movie/{movieId}")
     public ResponseEntity<List<Review>> getReviewsByMovie(@PathVariable Long movieId) {
         List<Review> reviews = reviewService.viewReviewsForCertainMovie(movieId);
         return ResponseEntity.ok(reviews);
-    }
+    } //
 
     @GetMapping("/pending")
     public ResponseEntity<List<Review>> getPendingReviews() {
         List<Review> reviews = reviewService.viewPendingReviews();
         return ResponseEntity.ok(reviews);
-    }
+    } //
 
     @PostMapping
     public ResponseEntity<Review> createReview(@RequestBody @Valid ReviewRequest reviewDto) {
         Review savedReview = reviewService.createReview(reviewDto);
         return ResponseEntity.ok(savedReview);
-    }
+    } //
 
     @GetMapping("/{reviewId}")
     public ResponseEntity<Review> getReviewById(@PathVariable String reviewId) {
