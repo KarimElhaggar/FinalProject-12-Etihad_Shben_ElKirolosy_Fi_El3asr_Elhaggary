@@ -48,6 +48,7 @@
         <module>reviews</module>
         <module>notifications</module>
         <module>sharedContracts</module>
+        <module>apigateway</module>
     </modules>
 
 </project>
