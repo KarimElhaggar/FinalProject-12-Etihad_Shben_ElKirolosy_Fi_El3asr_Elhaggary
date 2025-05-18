@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "user-service")
+@FeignClient(name = "users-service")
 public interface UsersClient {
     @GetMapping("/followers/{id}")
     List<Long> getUserFollowersById(@PathVariable long id);

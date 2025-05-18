@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.List;
 
 //me7tain review wa notification yezwado functions fa service wa controller 3ashan a call it wa na integrate
-@FeignClient(name = "review-service")
+@FeignClient(name = "reviews-service")
 public interface ReviewClient {
     @GetMapping("/movie/{movieId}")
     ResponseEntity<List<Long>> getReviewsByMovie(@PathVariable("movieId") Long movieId); // hia strin for now wa change in integration
