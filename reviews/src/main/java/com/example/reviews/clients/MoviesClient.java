@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "movies-service")
 public interface MoviesClient {
 
-    @GetMapping("movieExists/{id}")
+    @GetMapping("/movieExists/{id}")
     boolean movieExists(@PathVariable long id);
 
-    @GetMapping("getMovieAverageRating/{id}")
+    @GetMapping("/getMovieAverageRating/{id}")
     Double getMovieAverageRating(@PathVariable Long id);
 
     @GetMapping("/updateMovieRating/{id}/{rating}")

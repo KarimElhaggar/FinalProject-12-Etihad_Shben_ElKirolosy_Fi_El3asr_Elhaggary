@@ -11,6 +11,6 @@ public interface MoviesClient {
     @PutMapping("/addUserToInterestedUserIds/{movieId}/{userId}")
     String addUserToInterestedUserIds(@PathVariable Long movieId, @PathVariable Long userId);
 
-    @GetMapping("movieExists/{id}")
+    @GetMapping("/movieExists/{id}")
     boolean movieExists(@PathVariable long id);
 }
