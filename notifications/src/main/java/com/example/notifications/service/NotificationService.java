@@ -15,7 +15,9 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -78,24 +80,31 @@ public class NotificationService {
         return notificationRepository.findByUserId(userId);
     }
 
-    public Optional<Notification> getNotificationById(Long id) {
+    public Notification getNotificationById(Long id) {
         log.info("Fetching notification by id: {}", id);
 
         Optional<Notification> optional = notificationRepository.findById(id);
-        optional.ifPresent(notification -> {
+        if (optional.isPresent()) {
 
             log.info("Checking if notification {} is already marked as read", id);
-
+            Notification notification = optional.get();
             if (!notification.isMarkAsRead()) {
 
                 log.info("Marking notification {} as read", id);
 
                 notification.setMarkAsRead(true);
                 notificationRepository.save(notification);
-            }
-        });
 
-        return optional;
+
+            }
+            return notification;
+        }else{
+            log.info("No notification found for id {}", id);
+
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,  "Notification not found");
+        }
+
+
     }
 
     public void markAsRead(Long id) {
