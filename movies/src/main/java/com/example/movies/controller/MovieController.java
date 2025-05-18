@@ -116,7 +116,7 @@ public class MovieController {
 
     @GetMapping("/movieExists/{id}")
     public boolean movieExists(@PathVariable Long id) {
-        return movieService.getMovieById(id) != null;
+        return movieService.movieExists(id);
     }
 
     @GetMapping("/getMovieAverageRating/{id}")

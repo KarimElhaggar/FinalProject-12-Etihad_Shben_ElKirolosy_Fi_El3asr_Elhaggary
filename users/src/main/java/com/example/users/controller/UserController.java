@@ -107,7 +107,7 @@ public class UserController {
 
     @GetMapping("/userExists/{id}")
     public boolean userExists(@PathVariable Long id){
-        return userService.getUserById(id) != null;
+        return userService.userExists(id);
     }
 
     @PutMapping("/subscribeToNotification/{userId}/{movieId}")

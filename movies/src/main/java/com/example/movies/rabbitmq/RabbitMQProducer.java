@@ -19,7 +19,10 @@ public class RabbitMQProducer {
         for (int i = 0; i < ids.size() - 1; i++) {
            message.append(ids.get(i)).append(",");
         }
-        message.append(ids.getLast());
+
+        if(!ids.isEmpty()) {
+            message.append(ids.getLast());
+        }
 
         message.append(";").append(notificationType);
 

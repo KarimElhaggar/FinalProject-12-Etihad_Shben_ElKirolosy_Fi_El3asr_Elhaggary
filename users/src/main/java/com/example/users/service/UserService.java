@@ -136,6 +136,10 @@ public class UserService {
         return cleanUser;
     }
 
+    public boolean userExists(Long id) {
+        return this.userRepository.existsById(id);
+    }
+
     public List<Long> getUserFollowersById(Long id) {
         log.info("Getting followers for user id: {}", id);
         User user = userRepository.findById(id)

@@ -111,6 +111,10 @@ public class MovieService {
         }
     }
 
+    public boolean movieExists(Long id) {
+        return movieRepository.existsById(id);
+    }
+
     public List<Movie> getMoviesAboveCertainRating(double rating) {
         log.info("Fetching movies with rating above: {}", rating);
 
