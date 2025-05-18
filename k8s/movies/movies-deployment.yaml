@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: movies-service
-          image: hazemanwar210/movies
+          image: loggedin213/movies
           ports:
             - containerPort: 8080
           env:

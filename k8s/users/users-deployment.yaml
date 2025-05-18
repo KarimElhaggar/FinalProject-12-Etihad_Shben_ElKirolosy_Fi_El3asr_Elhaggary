@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: users-service
-          image: hazemanwar210/users
+          image: loggedin213/users
           ports:
             - containerPort: 8080
           env:

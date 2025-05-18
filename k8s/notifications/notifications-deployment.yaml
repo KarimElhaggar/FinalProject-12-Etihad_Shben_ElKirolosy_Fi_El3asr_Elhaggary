@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: notification-service
-          image: hazemanwar210/notifications
+          image: loggedin213/notifications
           ports:
             - containerPort: 8080
           env:
