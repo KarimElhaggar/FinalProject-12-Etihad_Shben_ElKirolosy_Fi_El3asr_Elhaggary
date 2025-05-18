@@ -15,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +37,10 @@ public class ReviewService {
         log.info("fetching reviews for user with id: {}", userId);
 
         if (userId == null) {
-            throw new InvalidDataAccessApiUsageException("Please provide a valid user id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide a valid user id");
         }
         if(!usersClient.userExists(userId)) {
-            throw new InvalidDataAccessApiUsageException("User does not exist");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User does not exist");
         }
 
         log.info("reviews fetched for user with id: {} and will be returned as a list of reviews.", userId);
@@ -50,11 +52,11 @@ public class ReviewService {
         log.info("Toggling like for review with id: {} and user with id: {}", reviewId, userId);
 
         if(userId == null) {
-            throw new InvalidDataAccessApiUsageException("Please provide a valid user id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide a valid user id");
         }
 
         if(reviewId == null) {
-            throw new InvalidDataAccessApiUsageException("Please provide a valid review id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide a valid review id");
         }
 
         Review reviewToBeChanged = reviewRepository.findById(reviewId).orElse(null);
@@ -62,7 +64,7 @@ public class ReviewService {
             return null;
         }
         if(!usersClient.userExists(userId)) {
-            throw new InvalidDataAccessApiUsageException("User does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist");
         }
 
         if(reviewToBeChanged.getLikedUsers().contains(userId)) {
@@ -89,10 +91,10 @@ public class ReviewService {
         log.info("fetching reviews for movie with id: " + movieId);
 
         if(movieId == null) {
-            throw new InvalidDataAccessApiUsageException("Please provide a valid movie id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide a valid movie id");
         }
         if(!moviesClient.movieExists(movieId))
-            throw new InvalidDataAccessApiUsageException("Movie does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie does not exist");
 
         log.info("reviews fetched for movie with id: {} and will be returned as a list of reviews.", movieId);
 
@@ -109,18 +111,18 @@ public class ReviewService {
         log.info("Creating review for user with id: {} and movie with id: {}", reviewDto.getUserId(), reviewDto.getMovieId());
 
         if (reviewDto == null)
-            throw new InvalidDataAccessApiUsageException("Review cannot be null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review cannot be null");
 
         Review review = convertDtoToReview(reviewDto);
 
         if (review == null)
-            throw new InvalidDataAccessApiUsageException("Review cannot be null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review cannot be null");
 
         if(!usersClient.userExists(review.getUserId()))
-            throw new InvalidDataAccessApiUsageException("User does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist");
 
         if(!moviesClient.movieExists(review.getMovieId()))
-            throw new InvalidDataAccessApiUsageException("Movie does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie does not exist");
 
         List<Long> followers = usersClient.getUserFollowersById(review.getUserId());
 
@@ -135,13 +137,13 @@ public class ReviewService {
         log.info("fetching review with id: {}", reviewId);
 
         if (reviewId == null) {
-            throw new InvalidDataAccessApiUsageException("Please provide a valid review id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide a valid review id");
         }
 
         log.info("review fetched with id: {} and will be returned as a review object.", reviewId);
 
         return reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new InvalidDataAccessApiUsageException("Review not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review does not exist"));
     }
 
     public Review updateReview(String reviewId, ReviewRequest updatedReviewDto) {
@@ -149,11 +151,11 @@ public class ReviewService {
 
         Review updatedReview = convertDtoToReview(updatedReviewDto);
         if (reviewId == null || updatedReview == null) {
-            throw new InvalidDataAccessApiUsageException("Review ID or data cannot be null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review ID or data cannot be null");
         }
 
         Review existing = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new InvalidDataAccessApiUsageException("Review not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found"));
 
         Double oldRating = existing.getRating();
 
@@ -204,13 +206,13 @@ public class ReviewService {
         log.info("Deleting review with id: {}", reviewId);
 
         if (reviewId == null) {
-            throw new InvalidDataAccessApiUsageException("Review ID cannot be null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review ID cannot be null");
         }
 
         Review reviewToBeDeleted = reviewRepository.findById(reviewId).orElse(null);
 
         if(reviewToBeDeleted == null) {
-            throw new InvalidDataAccessApiUsageException("Review does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Review does not exist");
         }
 
         Double movieAVGRating = moviesClient.getMovieAverageRating(reviewToBeDeleted.getMovieId());

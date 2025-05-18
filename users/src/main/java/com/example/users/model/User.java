@@ -1,6 +1,8 @@
 package com.example.users.model;
 
 import jakarta.persistence.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,13 +117,13 @@ public class User {
 
         public User build() {
             if (this.username == null || this.username.isEmpty()) {
-                throw new IllegalArgumentException("Username cannot be null or empty");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username cannot be null or empty");
             }
             if (this.email == null || this.email.isEmpty()) {
-                throw new IllegalArgumentException("Email cannot be null or empty");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email cannot be null or empty");
             }
             if (this.password == null || this.password.isEmpty()) {
-                throw new IllegalArgumentException("Password cannot be null or empty");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password cannot be null or empty");
             }
             return new User(this);
         }
