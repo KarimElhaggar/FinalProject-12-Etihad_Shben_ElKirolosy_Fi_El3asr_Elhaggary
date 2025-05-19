@@ -5,7 +5,7 @@ management:
         include: prometheus, health, info
   endpoint:
     prometheus:
-      access: unrestricted
+      access: read_only
   metrics:
     tags:
       application: api-gateway
