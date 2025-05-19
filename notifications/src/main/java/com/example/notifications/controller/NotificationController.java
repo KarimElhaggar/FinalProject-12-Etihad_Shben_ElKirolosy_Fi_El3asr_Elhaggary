@@ -4,8 +4,10 @@ import com.example.notifications.model.Notification;
 import com.example.notifications.constants.NotificationType;
 import com.example.notifications.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -28,9 +30,10 @@ public class NotificationController {
         notificationService.triggerObserverNotification(message, userId, movieId, type);
         return "Notification sent via observer.";
     }
-
+//todo
     @PostMapping
     public Notification createNotification(@RequestBody Notification notification) {
+
         return notificationService.saveNotification(notification);
     }
 
@@ -41,6 +44,7 @@ public class NotificationController {
 
     @GetMapping("/user/{userId}")
     public List<Notification> getNotificationsByUser(@PathVariable Long userId) {
+        //TODO check if user exists
         return notificationService.getNotificationsByUserId(userId);
     }
 
@@ -65,7 +69,7 @@ public class NotificationController {
         notificationService.markAsRead(id);
         return "Read status updated.";
     }
-
+//todo
     @PutMapping("/{id}/unread")
     public String markAsUnread(@PathVariable String id) {
         notificationService.markAsUnread(id);
@@ -73,19 +77,21 @@ public class NotificationController {
     }
 
     @PostMapping("/send")
-    public String sendBatch(@RequestBody List<Long> ids, @RequestParam NotificationType type) {
+    public String sendBatch(@RequestBody Long[] ids, @RequestParam("NotificationType") NotificationType type) {
         notificationService.sendBatch(ids, type);
         return "Notifications sent.";
     }
 
     @DeleteMapping("/{id}")
     public String deleteNotification(@PathVariable String id) {
+        //TODO check if noti exists
         notificationService.deleteNotification(id);
         return "Notification deleted";
     }
 
     @DeleteMapping("/user/{userId}")
     public String deleteAllByUser(@PathVariable Long userId) {
+        //TODO check if user exists
         notificationService.deleteAllByUserId(userId);
         return "All notifications for user deleted";
     }
@@ -93,14 +99,14 @@ public class NotificationController {
     private static final Set<String> ALLOWED_METHODS = Set.of(
             "getNotificationType", "isMarkAsRead", "getMovieId"
     );
-
+//todo
     @GetMapping("/filter")
     public List<Notification> filterByMethod(
             @RequestParam String method,
             @RequestParam String value) {
 
         if (!ALLOWED_METHODS.contains(method)) {
-            throw new IllegalArgumentException("Invalid method: " + method);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,  "Method not allowed");
         }
 
         try {
@@ -121,10 +127,9 @@ public class NotificationController {
             List<Notification> result = notificationService.filterNotificationsBy(method, typedValue);
             return result;
         } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException(e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,  "Method not allowed");
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,  "STOP RUINoivcnveroivn");
         }
     }
 }
