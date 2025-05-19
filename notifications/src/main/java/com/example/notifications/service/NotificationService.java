@@ -178,7 +178,7 @@ public class NotificationService implements NotificationObserver {
             try {
                 String to = remoteUserService.getUserEmailById(userId).getEmail();
                 mails.add(to);
-//              emailService.sendNotificationEmail(to, type);
+              emailService.sendNotificationEmail(to, type);
             } catch (Exception e) {
                 log.error("Failed to send email to userId {}: {}", userId, e.getMessage(), e);
             }
