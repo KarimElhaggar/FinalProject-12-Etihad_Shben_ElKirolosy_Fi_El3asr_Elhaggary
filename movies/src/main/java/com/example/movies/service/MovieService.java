@@ -2,6 +2,7 @@ package com.example.movies.service;
 
 import com.example.movies.constants.NotificationType;
 import com.example.movies.model.Movie;
+import com.example.movies.observer.MoviePublisher;
 import com.example.movies.rabbitmq.RabbitMQProducer;
 import com.example.movies.repository.MovieRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +25,15 @@ import java.util.Optional;
 public class MovieService {
 
     private final MovieRepository movieRepository;
-    private final RabbitMQProducer rabbitMQProducer;
+    //private final RabbitMQProducer rabbitMQProducer;
+    private final MoviePublisher moviePublisher;
+
 
     @Autowired
-    public MovieService(MovieRepository movieRepository, RabbitMQProducer rabbitMQProducer) {
+    public MovieService(MovieRepository movieRepository, MoviePublisher moviePublisher) {
         this.movieRepository = movieRepository;
-        this.rabbitMQProducer = rabbitMQProducer;
+       // this.rabbitMQProducer = rabbitMQProducer;
+        this.moviePublisher = moviePublisher;
     }
 
     public List<Movie> getMovies() {
@@ -74,7 +78,7 @@ public class MovieService {
 
                 log.info("Movie release status changed. Notifying users...");
 
-                rabbitMQProducer.sendToNotifications(movie.getInterestedUserIds(), NotificationType.NEWMOVIE);
+                moviePublisher.notifyObservers(movie, NotificationType.NEWMOVIE);
             }
             movie.setReleased(updatedMovie.isReleased());
 
