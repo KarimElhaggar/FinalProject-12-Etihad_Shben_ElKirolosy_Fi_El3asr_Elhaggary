@@ -38,7 +38,16 @@ public class ReviewService {
     private final UsersClient usersClient;
     private final MoviesClient moviesClient;
 
+    //getallreviews
+    public List<Review> getAllReviews() {
+        log.info("fetching all reviews");
 
+        List<Review> reviews = reviewRepository.findAll();
+
+        log.info("all reviews fetched and will be returned as a list of reviews.");
+
+        return reviews;
+    }
 
     public List<Review> viewReviewsByUser(Long userId) {
         log.info("fetching reviews for user with id: {}", userId);
@@ -136,6 +145,10 @@ public class ReviewService {
         reviewPublisher.notifyObservers(followers, NotificationType.LIKEDREVIEW);
 
         log.info("Review created for user with id: {} and movie with id: {}", review.getUserId(), review.getMovieId());
+
+        if (reviewDto.getLikesCount() == null) {
+            review.setLikesCount(0L);
+        }
 
         return reviewRepository.save(review);
     }
