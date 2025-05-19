@@ -49,7 +49,6 @@ public class ReviewController {
         Review savedReview = reviewService.createReview(reviewDto);
         return ResponseEntity.ok(savedReview);
     } //
-
     @GetMapping("/{reviewId}")
     public ResponseEntity<Review> getReviewById(@PathVariable String reviewId) {
         Review review = reviewService.getReviewById(reviewId);
