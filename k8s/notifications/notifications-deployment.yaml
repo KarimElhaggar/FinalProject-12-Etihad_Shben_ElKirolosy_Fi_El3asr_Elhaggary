@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: notification-service
+  name: notifications-service
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: notification-service
+      app: notifications-service
   template:
     metadata:
       labels:
-        app: notification-service
+        app: notifications-service
     spec:
       containers:
-        - name: notification-service
+        - name: notifications-service
           image: loggedin213/notifications
           ports:
             - containerPort: 8080
