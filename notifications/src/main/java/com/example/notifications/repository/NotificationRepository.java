@@ -4,10 +4,12 @@ import com.example.notifications.model.Notification;
 import com.example.notifications.constants.NotificationType;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface NotificationRepository extends MongoRepository<Notification, Long> {
+@Repository
+public interface NotificationRepository extends MongoRepository<Notification, String> {
 
     List<Notification> findByUserId(Long userId);
 

@@ -21,75 +21,73 @@ public class NotificationController {
     private NotificationService notificationService;
 
     @PostMapping("/observer")
-    public ResponseEntity<String> createViaObserver(@RequestParam String message,
+    public String createViaObserver(@RequestParam String message,
                                                     @RequestParam Long userId,
                                                     @RequestParam NotificationType type,
                                                     @RequestParam(required = false) Long movieId) {
         notificationService.triggerObserverNotification(message, userId, movieId, type);
-        return ResponseEntity.ok("Notification sent via observer.");
+        return "Notification sent via observer.";
     }
 
     @PostMapping
-    public ResponseEntity<Notification> createNotification(@RequestBody Notification notification) {
-        return ResponseEntity.ok(notificationService.saveNotification(notification));
+    public Notification createNotification(@RequestBody Notification notification) {
+        return notificationService.saveNotification(notification);
     }
 
     @GetMapping
-    public ResponseEntity<List<Notification>> getAllNotifications() {
-        return ResponseEntity.ok(notificationService.getAllNotifications());
+    public List<Notification> getAllNotifications() {
+        return notificationService.getAllNotifications();
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Notification>> getNotificationsByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(notificationService.getNotificationsByUserId(userId));
+    public List<Notification> getNotificationsByUser(@PathVariable Long userId) {
+        return notificationService.getNotificationsByUserId(userId);
     }
 
     @GetMapping("/user/{userId}/unread")
-    public ResponseEntity<List<Notification>> getUnreadNotifications(@PathVariable Long userId) {
-        return ResponseEntity.ok(notificationService.getUnreadNotificationsByUserId(userId));
+    public List<Notification> getUnreadNotifications(@PathVariable Long userId) {
+        return notificationService.getUnreadNotificationsByUserId(userId);
     }
 
     @GetMapping("/user/{userId}/unread/{type}")
-    public ResponseEntity<List<Notification>> getUnreadByType(@PathVariable Long userId,
+    public List<Notification> getUnreadByType(@PathVariable Long userId,
                                                               @PathVariable NotificationType type) {
-        return ResponseEntity.ok(notificationService.getUnreadByType(userId, type));
+        return notificationService.getUnreadByType(userId, type);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Notification> getNotificationById(@PathVariable Long id) {
-        Optional<Notification> optional = notificationService.getNotificationById(id);
-        return optional.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(404).body(null));
+    public Notification getNotificationById(@PathVariable String id) {
+        return notificationService.getNotificationById(id);
     }
 
     @PutMapping("/{id}/read")
-    public ResponseEntity<?> markAsRead(@PathVariable Long id) {
+    public String markAsRead(@PathVariable String id) {
         notificationService.markAsRead(id);
-        return ResponseEntity.ok("Read status updated.");
+        return "Read status updated.";
     }
 
     @PutMapping("/{id}/unread")
-    public ResponseEntity<?> markAsUnread(@PathVariable Long id) {
+    public String markAsUnread(@PathVariable String id) {
         notificationService.markAsUnread(id);
-        return ResponseEntity.ok("Read status updated.");
+        return "Read status updated.";
     }
 
     @PostMapping("/send")
-    public ResponseEntity<?> sendBatch(@RequestBody List<Long> ids, @RequestParam NotificationType type) {
+    public String sendBatch(@RequestBody List<Long> ids, @RequestParam NotificationType type) {
         notificationService.sendBatch(ids, type);
-        return ResponseEntity.ok("Notifications sent.");
+        return "Notifications sent.";
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteNotification(@PathVariable Long id) {
+    public String deleteNotification(@PathVariable String id) {
         notificationService.deleteNotification(id);
-        return ResponseEntity.ok("Notification deleted");
+        return "Notification deleted";
     }
 
     @DeleteMapping("/user/{userId}")
-    public ResponseEntity<String> deleteAllByUser(@PathVariable Long userId) {
+    public String deleteAllByUser(@PathVariable Long userId) {
         notificationService.deleteAllByUserId(userId);
-        return ResponseEntity.ok("All notifications for user deleted");
+        return "All notifications for user deleted";
     }
 
     private static final Set<String> ALLOWED_METHODS = Set.of(
@@ -97,12 +95,12 @@ public class NotificationController {
     );
 
     @GetMapping("/filter")
-    public ResponseEntity<List<Notification>> filterByMethod(
+    public List<Notification> filterByMethod(
             @RequestParam String method,
             @RequestParam String value) {
 
         if (!ALLOWED_METHODS.contains(method)) {
-            return ResponseEntity.badRequest().body(null);
+            throw new IllegalArgumentException("Invalid method: " + method);
         }
 
         try {
@@ -121,12 +119,12 @@ public class NotificationController {
             }
 
             List<Notification> result = notificationService.filterNotificationsBy(method, typedValue);
-            return ResponseEntity.ok(result);
+            return result;
         } catch (NoSuchMethodException e) {
-            return ResponseEntity.badRequest().body(null);
+            throw new IllegalArgumentException(e);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body(null);
+            throw new IllegalArgumentException(e);
         }
     }
 }

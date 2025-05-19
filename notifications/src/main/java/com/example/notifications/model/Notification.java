@@ -12,11 +12,11 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "notifications")
+@Document("notifications")
 public class Notification {
 
     @Id
-    private Long id;
+    private String id;
     private String notification;
     private NotificationType notificationType;
     private boolean markAsRead;
@@ -25,26 +25,26 @@ public class Notification {
     private Long userId;
     private Long movieId;
 
-    public Notification(String notification, NotificationType notificationType, LocalDateTime notificationDate) {
+    public Notification(String notification, NotificationType notificationType) {
         this.notification = notification;
         this.notificationType = notificationType;
         this.markAsRead = false;
-        this.notificationDate = notificationDate;
+        this.notificationDate = LocalDateTime.now();
     }
 
-    public Notification(String notification, NotificationType notificationType, LocalDateTime notificationDate, Long userId) {
+    public Notification(String notification, NotificationType notificationType, Long userId) {
         this.notification = notification;
         this.notificationType = notificationType;
         this.markAsRead = false;
-        this.notificationDate = notificationDate;
+        this.notificationDate = LocalDateTime.now();
         this.userId = userId;
     }
 
-    public Notification(String notification, NotificationType notificationType, LocalDateTime notificationDate, Long userId, Long movieId) {
+    public Notification(String notification, NotificationType notificationType, Long userId, Long movieId) {
         this.notification = notification;
         this.notificationType = notificationType;
         this.markAsRead = false;
-        this.notificationDate = notificationDate;
+        this.notificationDate = LocalDateTime.now();
         this.userId = userId;
         this.movieId = movieId;
     }
@@ -53,12 +53,11 @@ public class Notification {
             String notification,
             NotificationType notificationType,
             boolean markAsRead,
-            LocalDateTime notificationDate,
             Long userId, Long movieId) {
         this.notification = notification;
         this.notificationType = notificationType;
         this.markAsRead = markAsRead;
-        this.notificationDate = notificationDate;
+        this.notificationDate = LocalDateTime.now();
         this.userId = userId;
         this.movieId = movieId;
     }

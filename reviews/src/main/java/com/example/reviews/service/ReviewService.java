@@ -6,14 +6,19 @@ import com.example.reviews.clients.UsersClient;
 import com.example.reviews.constants.ReviewStatus;
 import com.example.reviews.constants.NotificationType;
 import com.example.reviews.model.Review;
+import com.example.reviews.observer.ReviewPublisher;
+import com.example.reviews.rabbitmq.RabbitMQConfig;
 import com.example.reviews.rabbitmq.RabbitMQProducer;
 import com.example.reviews.repository.ReviewRepository;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +27,8 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 public class ReviewService {
+
+    private final ReviewPublisher reviewPublisher;
     private final ReviewRepository reviewRepository;
 
     @Autowired
@@ -29,14 +36,16 @@ public class ReviewService {
     private final UsersClient usersClient;
     private final MoviesClient moviesClient;
 
+
+
     public List<Review> viewReviewsByUser(Long userId) {
         log.info("fetching reviews for user with id: {}", userId);
 
         if (userId == null) {
-            throw new InvalidDataAccessApiUsageException("Please provide a valid user id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide a valid user id");
         }
         if(!usersClient.userExists(userId)) {
-            throw new InvalidDataAccessApiUsageException("User does not exist");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User does not exist");
         }
 
         log.info("reviews fetched for user with id: {} and will be returned as a list of reviews.", userId);
@@ -48,11 +57,11 @@ public class ReviewService {
         log.info("Toggling like for review with id: {} and user with id: {}", reviewId, userId);
 
         if(userId == null) {
-            throw new InvalidDataAccessApiUsageException("Please provide a valid user id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide a valid user id");
         }
 
         if(reviewId == null) {
-            throw new InvalidDataAccessApiUsageException("Please provide a valid review id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide a valid review id");
         }
 
         Review reviewToBeChanged = reviewRepository.findById(reviewId).orElse(null);
@@ -60,7 +69,7 @@ public class ReviewService {
             return null;
         }
         if(!usersClient.userExists(userId)) {
-            throw new InvalidDataAccessApiUsageException("User does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist");
         }
 
         if(reviewToBeChanged.getLikedUsers().contains(userId)) {
@@ -75,7 +84,7 @@ public class ReviewService {
             List<Long> usersToBeNotified = new ArrayList<>();
             usersToBeNotified.add(reviewToBeChanged.getUserId());
 
-            rabbitMQProducer.sendToNotifications(usersToBeNotified, NotificationType.LIKEDREVIEW);
+            reviewPublisher.notifyObservers(usersToBeNotified, NotificationType.NEWREVIEW);
         }
 
         log.info("Review with id: {} and user with id: {} has been updated.", reviewId, userId);
@@ -87,10 +96,10 @@ public class ReviewService {
         log.info("fetching reviews for movie with id: " + movieId);
 
         if(movieId == null) {
-            throw new InvalidDataAccessApiUsageException("Please provide a valid movie id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide a valid movie id");
         }
         if(!moviesClient.movieExists(movieId))
-            throw new InvalidDataAccessApiUsageException("Movie does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie does not exist");
 
         log.info("reviews fetched for movie with id: {} and will be returned as a list of reviews.", movieId);
 
@@ -107,28 +116,22 @@ public class ReviewService {
         log.info("Creating review for user with id: {} and movie with id: {}", reviewDto.getUserId(), reviewDto.getMovieId());
 
         if (reviewDto == null)
-            throw new InvalidDataAccessApiUsageException("Review cannot be null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review cannot be null");
 
         Review review = convertDtoToReview(reviewDto);
 
         if (review == null)
-            throw new InvalidDataAccessApiUsageException("Review cannot be null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review cannot be null");
 
         if(!usersClient.userExists(review.getUserId()))
-            throw new InvalidDataAccessApiUsageException("User does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist");
 
         if(!moviesClient.movieExists(review.getMovieId()))
-            throw new InvalidDataAccessApiUsageException("Movie does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie does not exist");
 
         List<Long> followers = usersClient.getUserFollowersById(review.getUserId());
 
-        rabbitMQProducer.sendToNotifications(followers, NotificationType.NEWREVIEW);
-
-        Double movieAVGRating = moviesClient.getMovieAverageRating(review.getMovieId());
-        Integer reviewsCountByMovieID = reviewRepository.findReviewsByMovieId(review.getMovieId()).size();
-        Double sum = movieAVGRating * reviewsCountByMovieID + review.getRating();
-        Double newAverage = sum / (reviewsCountByMovieID + 1);
-        moviesClient.updateMovie(review.getMovieId(), newAverage);
+        reviewPublisher.notifyObservers(followers, NotificationType.LIKEDREVIEW);
 
         log.info("Review created for user with id: {} and movie with id: {}", review.getUserId(), review.getMovieId());
 
@@ -139,13 +142,13 @@ public class ReviewService {
         log.info("fetching review with id: {}", reviewId);
 
         if (reviewId == null) {
-            throw new InvalidDataAccessApiUsageException("Please provide a valid review id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide a valid review id");
         }
 
         log.info("review fetched with id: {} and will be returned as a review object.", reviewId);
 
         return reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new InvalidDataAccessApiUsageException("Review not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review does not exist"));
     }
 
     public Review updateReview(String reviewId, ReviewRequest updatedReviewDto) {
@@ -153,11 +156,11 @@ public class ReviewService {
 
         Review updatedReview = convertDtoToReview(updatedReviewDto);
         if (reviewId == null || updatedReview == null) {
-            throw new InvalidDataAccessApiUsageException("Review ID or data cannot be null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review ID or data cannot be null");
         }
 
         Review existing = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new InvalidDataAccessApiUsageException("Review not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found"));
 
         Double oldRating = existing.getRating();
 
@@ -168,29 +171,53 @@ public class ReviewService {
         existing.setUserId(updatedReview.getUserId() != null ? updatedReview.getUserId() : existing.getUserId());
         existing.setMovieId(updatedReview.getMovieId() != null ? updatedReview.getMovieId() : existing.getMovieId());
 
-        //calculates a new average rating for the movie by subtracting the old rating and adding the new rating
-        Double movieAVGRating = moviesClient.getMovieAverageRating(existing.getMovieId());
-        Integer reviewsCountByMovieID = reviewRepository.findReviewsByMovieId(existing.getMovieId()).size();
-        Double sum = movieAVGRating * reviewsCountByMovieID - oldRating + existing.getRating();
-        Double newAverage = sum / reviewsCountByMovieID;
-        moviesClient.updateMovie(existing.getMovieId(), newAverage);
+        if(existing.getStatus() == ReviewStatus.APPROVED) {
+
+            //calculates a new average rating for the movie by subtracting the old rating and adding the new rating
+            Double movieAVGRating = moviesClient.getMovieAverageRating(existing.getMovieId());
+            Integer reviewsCountByMovieID = reviewRepository.findReviewsByMovieId(existing.getMovieId()).size();
+            Double sum = movieAVGRating * reviewsCountByMovieID - oldRating + existing.getRating();
+            Double newAverage = sum / reviewsCountByMovieID;
+            moviesClient.updateMovie(existing.getMovieId(), newAverage);
+
+        }
 
         log.info("Review with id: {} and data: {} has been updated.", reviewId, updatedReview);
 
         return reviewRepository.save(existing);
     }
 
+    public Review approveReview(String reviewId) {
+        log.info("Approving review with id: {}", reviewId);
+
+        Review review = getReviewById(reviewId);
+
+        Double movieAVGRating = moviesClient.getMovieAverageRating(review.getMovieId());
+        Integer reviewsCountByMovieID = reviewRepository.findReviewsByMovieId(review.getMovieId()).size();
+        Double sum = movieAVGRating * reviewsCountByMovieID + review.getRating();
+        Double newAverage = sum / (reviewsCountByMovieID + 1);
+        moviesClient.updateMovie(review.getMovieId(), newAverage);
+
+        review.setStatus(ReviewStatus.APPROVED);
+
+        review = reviewRepository.save(review);
+
+        log.info("Review with id: {} has been approved.", reviewId);
+
+        return review;
+    }
+
     public void deleteReview(String reviewId) {
         log.info("Deleting review with id: {}", reviewId);
 
         if (reviewId == null) {
-            throw new InvalidDataAccessApiUsageException("Review ID cannot be null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review ID cannot be null");
         }
 
         Review reviewToBeDeleted = reviewRepository.findById(reviewId).orElse(null);
 
         if(reviewToBeDeleted == null) {
-            throw new InvalidDataAccessApiUsageException("Review does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Review does not exist");
         }
 
         Double movieAVGRating = moviesClient.getMovieAverageRating(reviewToBeDeleted.getMovieId());
@@ -206,9 +233,16 @@ public class ReviewService {
         log.info("Review with id: {} has been deleted.", reviewId);
     }
 
+    @RabbitListener(queues = RabbitMQConfig.USERS_QUEUE)
+    public void handleUserMessage(ReviewRequest reviewRequest) {
+        createReview(reviewRequest);
+    }
+
     public Review convertDtoToReview(ReviewRequest reviewDto){
         Review review = new Review();
-
+        if(reviewDto.getRating()==null || reviewDto.getStatus() == null || reviewDto.getReviewDescription() == null || reviewDto.getUserId() == null || reviewDto.getMovieId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong Review Format");
+        }
         review.setRating(reviewDto.getRating());
         review.setLikesCount(reviewDto.getLikesCount());
         review.setStatus(ReviewStatus.valueOf(reviewDto.getStatus().toUpperCase()));
@@ -220,6 +254,3 @@ public class ReviewService {
         return review;
     }
 }
-
-
-

@@ -1,6 +1,7 @@
 package com.example.notifications.observer;
 
 import com.example.notifications.constants.NotificationType;
+
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -15,9 +16,13 @@ public class NotificationPublisher {
         observers.add(observer);
     }
 
-    public void notifyObservers(String message, Long userId, Long movieId, NotificationType type) {
+    public void unsubscribe(NotificationObserver observer) {
+        observers.remove(observer);
+    }
+
+    public void notifyObservers(List<Long> userIds, NotificationType type) {
         for (NotificationObserver observer : observers) {
-            observer.update(message, userId, movieId, type);
+            observer.onNotificationReceived(userIds, type);
         }
     }
 }

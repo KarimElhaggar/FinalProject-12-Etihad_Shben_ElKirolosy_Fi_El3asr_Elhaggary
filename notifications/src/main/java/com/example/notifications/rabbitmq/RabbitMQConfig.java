@@ -2,7 +2,9 @@ package com.example.notifications.rabbitmq;
 
 import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class RabbitMQConfig {
     public static final String NOTIFICATION_QUEUE = "notification_queue";
     public static final String EXCHANGE = "shared_exchange";

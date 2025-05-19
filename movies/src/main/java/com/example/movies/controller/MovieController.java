@@ -26,7 +26,7 @@ public class MovieController {
     }
 
     @PostMapping("/addMovie")
-    public String addMovie(@Valid @RequestBody MovieRequest request) {
+    public Movie addMovie(@Valid @RequestBody MovieRequest request) {
         System.out.println(request.getAuthor());
         System.out.println(request.getMovieName());
 
@@ -41,6 +41,9 @@ public class MovieController {
         }
         if (request.getRating() != null) {
             builder.rating(request.getRating());
+        }
+        else{
+            builder.rating(0.0);
         }
         if (request.getGenre() != null && !request.getGenre().isBlank()) {
             builder.genre(request.getGenre());
@@ -60,7 +63,7 @@ public class MovieController {
     }
 
     @PutMapping("/{id}")
-    public String updateMovie(@PathVariable Long id, @Valid @RequestBody MovieRequest request) {
+    public Movie updateMovie(@PathVariable Long id, @Valid @RequestBody MovieRequest request) {
         Movie.Builder builder = new Movie.Builder().id(id)
                 .movieName(request.getMovieName())
                 .author(request.getAuthor())
@@ -116,7 +119,7 @@ public class MovieController {
 
     @GetMapping("/movieExists/{id}")
     public boolean movieExists(@PathVariable Long id) {
-        return movieService.getMovieById(id) != null;
+        return movieService.movieExists(id);
     }
 
     @GetMapping("/getMovieAverageRating/{id}")
@@ -130,4 +133,9 @@ public class MovieController {
         return "Movie rating updated successfully!";
     }
 
+    @PutMapping("/addUserToInterestedUserIds/{movieId}/{userId}")
+    public String addUserToInterestedUserIds(@PathVariable Long movieId, @PathVariable Long userId) {
+        movieService.addUserToInterestedUserIds(movieId, userId);
+        return "User added to interested user IDs successfully!";
+    }
 }

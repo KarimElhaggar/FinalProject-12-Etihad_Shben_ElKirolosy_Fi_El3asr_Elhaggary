@@ -13,24 +13,24 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class AuthService {
 
-    @Autowired private PasswordService passwordService;
     @Autowired private SessionService sessionService;
     @Autowired private TokenService tokenService;
     @Autowired private UserRepository userRepository;
 
     public void register(User user) {
         if (user.getUsername() == null || user.getPassword() == null) {
-            throw new IllegalArgumentException("Username and password are required.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,  "Username and password are required.");
         }
+
         if (userRepository.findByUsername(user.getUsername()) != null) {
-            throw new RuntimeException("Username already exists.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,  "Username already exists.");
         }
 
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email already exists.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,  "Email already exists.");
         }
 
-        String hashed = passwordService.hash(user.getPassword());
+        String hashed = PasswordHasherSingleton.getInstance().hash(user.getPassword());
         user.setPassword(hashed);
         userRepository.save(user);
     }
@@ -43,7 +43,7 @@ public class AuthService {
 
             User user = userRepository.findByUsername(username);
 
-            if (user == null || !passwordService.matches(password, user.getPassword())) {
+            if (user == null || !PasswordHasherSingleton.getInstance().matches(password, user.getPassword())) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
             }
 
@@ -101,7 +101,7 @@ public class AuthService {
 
     public void logout(String authorizationHeader) {
         if (authorizationHeader == null || authorizationHeader.isEmpty()) {
-            throw new IllegalArgumentException("Token is required.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token is required.");
         }
 
         String token = authorizationHeader.substring(7);

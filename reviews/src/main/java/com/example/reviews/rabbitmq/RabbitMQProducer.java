@@ -1,6 +1,7 @@
 package com.example.reviews.rabbitmq;
 
 import com.example.reviews.constants.NotificationType;
+import com.example.reviews.observer.ReviewObserver;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,18 +9,22 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class RabbitMQProducer {
+public class RabbitMQProducer implements ReviewObserver {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    public void sendToNotifications(List<Long> ids, NotificationType notificationType) {
+    @Override
+    public void onReviewEvent(List<Long> ids, NotificationType notificationType) {
         StringBuilder message = new StringBuilder();
 
         for (int i = 0; i < ids.size() - 1; i++) {
            message.append(ids.get(i)).append(",");
         }
-        message.append(ids.getLast());
+
+        if (!ids.isEmpty()) {
+            message.append(ids.getLast());
+        }
 
         message.append(";").append(notificationType);
 

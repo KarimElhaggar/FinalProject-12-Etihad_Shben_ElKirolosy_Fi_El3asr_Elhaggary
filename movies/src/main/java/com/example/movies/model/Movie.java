@@ -22,9 +22,8 @@ public class Movie {
     private String genre;
     private boolean released;
 
-    @ElementCollection
-    private List<Long> interestedUserIds;
-
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Long> interestedUserIds = new ArrayList<>();
 
     public Movie() {}
 
@@ -44,6 +43,18 @@ public class Movie {
     //   public void setMovieName(String movieName) { this.movieName = movieName; }
     //   public void setAuthor(String author) { this.author = author; }
     //  public void setYearReleased(int yearReleased) { this.yearReleased = yearReleased; }
+
+    public List<Long> getInterestedUserIds() {
+        return new ArrayList<>(this.interestedUserIds);
+    }
+
+    public void addInterestedUserId(Long userId) {
+        this.interestedUserIds.add(userId);
+    }
+
+    public void removeInterestedUserId(Long userId) {
+        this.interestedUserIds.remove(userId);
+    }
 
     public static class Builder {
         private Long id;

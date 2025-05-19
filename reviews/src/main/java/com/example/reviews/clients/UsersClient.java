@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "user-service", url = "http://localhost:8080/users")
+@FeignClient(name = "users-service", url = "http://users-service:8085")
 public interface UsersClient {
-    @GetMapping("/followers/{id}")
+    @GetMapping("/users/followers/{id}")
     List<Long> getUserFollowersById(@PathVariable long id);
 
-    @GetMapping("/userExists/{id}")
+    @GetMapping("/users/userExists/{id}")
     boolean userExists(@PathVariable long id);
 }

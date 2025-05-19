@@ -1,6 +1,8 @@
 package com.example.users.model;
 
 import jakarta.persistence.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,12 +20,12 @@ public class User {
     private boolean admin;
     private boolean banned;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_following_ids", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "following_id")
     private List<Long> following = new ArrayList<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_follower_ids", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "follower_id")
     private List<Long> followers = new ArrayList<>();
@@ -48,8 +50,8 @@ public class User {
     public String getUsername() { return username; }
     public String getEmail() { return email; }
     public String getPassword() { return password; }
-    public List<Long> getFollowing() { return following; }
-    public List<Long> getFollowers() { return followers; }
+    public List<Long> getFollowing() { return new ArrayList<>(this.following); }
+    public List<Long> getFollowers() { return new ArrayList<>(this.followers); }
     public boolean isAdmin() { return admin; }
     public boolean isBanned() { return banned; }
 
@@ -63,6 +65,29 @@ public class User {
     public void setFollowers(List<Long> followers) { this.followers = followers; }
     public void setAdmin(boolean admin) { this.admin = admin; }
     public void setBanned(boolean banned) { this.banned = banned; }
+
+    // Add a follower
+    public void addFollower(Long followerId) {
+        if (!followers.contains(followerId)) {
+            followers.add(followerId);
+        }
+    }
+
+    // Remove a follower
+    public void addFollowing(Long followingId) {
+        if (!following.contains(followingId)) {
+            following.add(followingId);
+        }
+    }
+
+    // Remove a follower
+    public void removeFollower(Long followerId) {
+        followers.remove(followerId);
+    }
+
+    public void removeFollowing(Long followingId) {
+        following.remove(followingId);
+    }
 
 
     // Builder inner class
@@ -115,13 +140,13 @@ public class User {
 
         public User build() {
             if (this.username == null || this.username.isEmpty()) {
-                throw new IllegalArgumentException("Username cannot be null or empty");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username cannot be null or empty");
             }
             if (this.email == null || this.email.isEmpty()) {
-                throw new IllegalArgumentException("Email cannot be null or empty");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email cannot be null or empty");
             }
             if (this.password == null || this.password.isEmpty()) {
-                throw new IllegalArgumentException("Password cannot be null or empty");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password cannot be null or empty");
             }
             return new User(this);
         }
