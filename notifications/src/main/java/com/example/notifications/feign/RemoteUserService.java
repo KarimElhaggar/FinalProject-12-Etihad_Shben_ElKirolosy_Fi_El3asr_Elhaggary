@@ -8,5 +8,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "users-service", url = "http://users-service:8085")
 public interface RemoteUserService {
     @GetMapping("/users/{id}/email")
-    UserEmailDTO getUserEmailById(@PathVariable("id") Long id);
+    String getUserEmailById(@PathVariable("id") Long id);
 }
