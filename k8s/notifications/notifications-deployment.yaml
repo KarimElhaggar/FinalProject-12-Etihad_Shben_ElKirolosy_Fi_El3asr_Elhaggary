@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: notifications-service
-          image: loggedin213/notifications
+          image: loggedinmonitoring/notifications
           ports:
             - containerPort: 8080
           env:
