@@ -1,29 +1,11 @@
-#server:
-#  port: 8080
-#spring:
-#  main:
-#    web-application-type: reactive
-#  application:
-#    name: apigateway
-#  cloud:
-#    gateway:
-#      routes:
-#        - id: movies-service
-#        - uri: http://localhost:8086
-#        - predicates:
-#          - Path=/movies/**
-#
-#        - id: reviews-service
-#        - uri: http://localhost:8084
-#        - predicates:
-#            - Path=/reviews/**
-#
-#        - id: users-service
-#        - uri: http://localhost:8085
-#        - predicates:
-#            - Path=/users/**
-#
-#        - id: notifications-service
-#        - uri: http://localhost:8083
-#        - predicates:
-#            - Path=/notifications/**
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health, info
+  endpoint:
+    prometheus:
+      access: unrestricted
+  metrics:
+    tags:
+      application: api-gateway

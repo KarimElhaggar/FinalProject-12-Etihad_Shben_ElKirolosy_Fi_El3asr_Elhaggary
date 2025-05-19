@@ -51,3 +51,11 @@ spec:
             - name: SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0
               value: Path=/notifications/**
 
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: prometheus,health,info
+            - name: MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED
+              value: "true"
+            - name: MANAGEMENT_ENDPOINT_HEALTH_SHOWDETAILS
+              value: always
+            - name: MANAGEMENT_METRICS_TAGS_APPLICATION
+              value: apigateway-service
