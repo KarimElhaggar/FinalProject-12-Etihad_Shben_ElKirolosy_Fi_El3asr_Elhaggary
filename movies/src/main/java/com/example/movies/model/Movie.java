@@ -48,6 +48,14 @@ public class Movie {
         return new ArrayList<>(this.interestedUserIds);
     }
 
+    public void addInterestedUserId(Long userId) {
+        this.interestedUserIds.add(userId);
+    }
+
+    public void removeInterestedUserId(Long userId) {
+        this.interestedUserIds.remove(userId);
+    }
+
     public static class Builder {
         private Long id;
         private String movieName;
