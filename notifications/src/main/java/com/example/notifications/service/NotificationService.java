@@ -176,7 +176,7 @@ public class NotificationService implements NotificationObserver {
             NotificationCommand created = new CreateNotificationCommand(this, type, userId);
             invoker.addCommand(created);
             try {
-                String to = remoteUserService.getUserEmailById(userId).getEmail();
+                String to = remoteUserService.getUserEmailById(userId);
                 mails.add(to);
               emailService.sendNotificationEmail(to, type);
             } catch (Exception e) {

@@ -42,9 +42,9 @@ public class UserController {
     }
 
     @GetMapping("/{id}/email")
-    public ResponseEntity<UserRequest> getUserEmailById(@PathVariable Long id) {
+    public String getUserEmailById(@PathVariable Long id) {
         User user = userService.getUserById(id);
-        return ResponseEntity.ok(new UserRequest(user.getId(), user.getEmail()));
+        return user.getEmail();
     }
 
     // is this needed? also probably need to remove the try catch
