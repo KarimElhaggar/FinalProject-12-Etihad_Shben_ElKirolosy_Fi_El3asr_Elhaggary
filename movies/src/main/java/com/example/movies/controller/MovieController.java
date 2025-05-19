@@ -67,7 +67,7 @@ public class MovieController {
         Movie.Builder builder = new Movie.Builder().id(id)
                 .movieName(request.getMovieName())
                 .author(request.getAuthor())
-                .released(false);
+                .released(request.isReleased());
 
         // Optional fields — only set if meaningful
         if(request.getYearReleased() != null) {

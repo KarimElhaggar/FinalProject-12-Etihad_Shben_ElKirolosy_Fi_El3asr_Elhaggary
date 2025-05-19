@@ -27,6 +27,7 @@ public class RabbitMQProducer implements MovieObserver {
         for (int i = 0; i < ids.size() - 1; i++) {
             message.append(ids.get(i)).append(",");
         }
+
         message.append(ids.getLast());
         message.append(";").append(notificationType);
 

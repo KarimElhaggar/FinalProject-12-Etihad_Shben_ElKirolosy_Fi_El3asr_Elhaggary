@@ -146,6 +146,10 @@ public class ReviewService {
 
         log.info("Review created for user with id: {} and movie with id: {}", review.getUserId(), review.getMovieId());
 
+        if (reviewDto.getLikesCount() == null) {
+            review.setLikesCount(0L);
+        }
+
         return reviewRepository.save(review);
     }
 
