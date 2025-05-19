@@ -95,7 +95,7 @@ public class ReviewService {
             List<Long> usersToBeNotified = new ArrayList<>();
             usersToBeNotified.add(reviewToBeChanged.getUserId());
 
-            reviewPublisher.notifyObservers(usersToBeNotified, NotificationType.NEWREVIEW);
+            reviewPublisher.notifyObservers(usersToBeNotified, NotificationType.LIKEDREVIEW);
         }
 
         log.info("Review with id: {} and user with id: {} has been updated.", reviewId, userId);
@@ -142,7 +142,7 @@ public class ReviewService {
 
         List<Long> followers = usersClient.getUserFollowersById(review.getUserId());
 
-        reviewPublisher.notifyObservers(followers, NotificationType.LIKEDREVIEW);
+        reviewPublisher.notifyObservers(followers, NotificationType.NEWREVIEW);
 
         log.info("Review created for user with id: {} and movie with id: {}", review.getUserId(), review.getMovieId());
 
