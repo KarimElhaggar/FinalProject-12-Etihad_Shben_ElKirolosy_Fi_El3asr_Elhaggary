@@ -19,7 +19,7 @@ public class CreateNotificationCommand implements NotificationCommand {
 
     @Override
     public void execute() {
-        Notification notification = new Notification("Message", notificationType, LocalDateTime.now(), userId);
+        Notification notification = new Notification("Message", notificationType, userId);
         notificationService.saveNotification(notification);
     }
 

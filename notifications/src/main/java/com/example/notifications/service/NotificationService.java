@@ -80,7 +80,7 @@ public class NotificationService {
         return notificationRepository.findByUserId(userId);
     }
 
-    public Notification getNotificationById(Long id) {
+    public Notification getNotificationById(String id) {
         log.info("Fetching notification by id: {}", id);
 
         Optional<Notification> optional = notificationRepository.findById(id);
@@ -107,7 +107,7 @@ public class NotificationService {
 
     }
 
-    public void markAsRead(Long id) {
+    public void markAsRead(String id) {
         log.info("Marking notification {} as read", id);
 
         Notification n = notificationRepository.findById(id).orElseThrow();
@@ -119,7 +119,7 @@ public class NotificationService {
         log.info("Notification {} marked as read and saved", id);
     }
 
-    public void markAsUnread(Long id) {
+    public void markAsUnread(String id) {
         log.info("Marking notification {} as unread", id);
 
         Notification n = notificationRepository.findById(id).orElseThrow();
@@ -182,7 +182,7 @@ public class NotificationService {
         return notificationRepository.findUnreadByType(userId, type);
     }
 
-    public void deleteNotification(Long id) {
+    public void deleteNotification(String id) {
         log.info("Deleting notification with id: {}", id);
         notificationRepository.deleteById(id);
     }
@@ -219,7 +219,5 @@ public class NotificationService {
         return filtered;
     }
 
-    public void send(List<String> userEmails, NotificationType type) {
-    }
 }
 
