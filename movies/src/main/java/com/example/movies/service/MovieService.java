@@ -53,7 +53,13 @@ public class MovieService {
     public String deleteMovie(Long id) {
         log.info("Deleting movie with id: {}", id);
 
+        if (!movieRepository.existsById(id)) {
+            log.warn("Movie with id {} not found for deletion", id);
+            return "Movie not found!";
+        }
+
         movieRepository.deleteById(id);
+        log.info("Movie with id {} deleted successfully", id);
 
         return "Movie deleted successfully!";
     }
@@ -65,22 +71,31 @@ public class MovieService {
         Optional<Movie> optionalMovie = movieRepository.findById(id);
         if (optionalMovie.isPresent()) {
             Movie movie = optionalMovie.get();
-
             log.info("Found movie: {}", movie.getMovieName());
 
-            movie.setMovieName(updatedMovie.getMovieName());
-            movie.setAuthor(updatedMovie.getAuthor());
-            movie.setYearReleased(updatedMovie.getYearReleased());
-            movie.setRating(updatedMovie.getRating());
-            movie.setGenre(updatedMovie.getGenre());
+            // Update fields only if they are provided in updatedMovie
+            if (updatedMovie.getMovieName() != null) {
+                movie.setMovieName(updatedMovie.getMovieName());
+            }
+            if (updatedMovie.getAuthor() != null) {
+                movie.setAuthor(updatedMovie.getAuthor());
+            }
+            if (updatedMovie.getYearReleased() != null) {
+                movie.setYearReleased(updatedMovie.getYearReleased());
+            }
+            if (updatedMovie.getRating() != null) {
+                movie.setRating(updatedMovie.getRating());
+            }
+            if (updatedMovie.getGenre() != null) {
+                movie.setGenre(updatedMovie.getGenre());
+            }
 
-            if (movie.isReleased() != updatedMovie.isReleased()) {
-
+            // Handle the release status carefully (partial update)
+            if (updatedMovie.isReleased() != movie.isReleased()) {
                 log.info("Movie release status changed. Notifying users...");
-
+                movie.setReleased(updatedMovie.isReleased());
                 moviePublisher.notifyObservers(movie, NotificationType.NEWMOVIE);
             }
-            movie.setReleased(updatedMovie.isReleased());
 
             movieRepository.save(movie);
 
@@ -154,6 +169,7 @@ public class MovieService {
         return movies;
     }
 
+    @CacheEvict(value = "movie_cache", key = "#id")
     public void updateMovieRating(Long id, Double rating) {
         log.info("Updating rating for movie id {} to {}", id, rating);
 
@@ -161,7 +177,7 @@ public class MovieService {
 
         if (movie == null) {
             log.warn("Movie with id {} not found for rating update", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,  "Movie not found!");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found!");
         }
 
         movie.setRating(rating);
@@ -170,6 +186,7 @@ public class MovieService {
         log.info("Rating updated for movie id {}", id);
     }
 
+    @CacheEvict(value = "movie_cache", key = "#movieId")
     public void addUserToInterestedUserIds(Long movieId, Long userId) {
         log.info("Adding user {} to interested list of movie {}", userId, movieId);
 
@@ -177,11 +194,11 @@ public class MovieService {
 
         if (movie == null) {
             log.warn("Movie with id {} not found for adding interested user", movieId);
-
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,  "Movie not found!");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found!");
         }
 
-        movie.getInterestedUserIds().add(userId);
+//        movie.getInterestedUserIds().add(userId);
+        movie.addInterestedUserId(userId);
         movieRepository.save(movie);
 
         log.info("User {} added to interested list of movie {}", userId, movieId);

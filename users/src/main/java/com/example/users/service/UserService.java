@@ -277,7 +277,9 @@ public class UserService {
         }
     }
 
-    public void subscribeToNotification(Long userId, Long movieId) {
+    public void subscribeToNotification(Long movieId) {
+        User loggedInUser = authService.getLoggedInUser();
+        Long userId = loggedInUser.getId();
         log.info("User {} subscribing to movie {} notifications.", userId, movieId);
 
         User user = userRepository.findById(userId)

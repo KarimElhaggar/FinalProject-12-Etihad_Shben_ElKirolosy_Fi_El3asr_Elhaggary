@@ -111,9 +111,9 @@ public class UserController {
         return userService.userExists(id);
     }
 
-    @PutMapping("/subscribeToNotification/{userId}/{movieId}")
-    public String subscribeToNotification(@PathVariable Long userId, @PathVariable Long movieId) {
-        userService.subscribeToNotification(userId, movieId);
+    @PutMapping("/subscribeToNotification/{movieId}")
+    public String subscribeToNotification(@PathVariable Long movieId) {
+        userService.subscribeToNotification(movieId);
         return "Subscribed to the movie notifications successfully!";
     }
 
@@ -123,7 +123,7 @@ public class UserController {
 //        return "Review added successfully!";
 //    }
 
-    @PostMapping("/addReview/{userId}/{movieId}")
+    @PostMapping("/addReview/{movieId}")
     public String addReview(@PathVariable Long movieId,
                             @RequestBody AddReviewRequest request) {
 
