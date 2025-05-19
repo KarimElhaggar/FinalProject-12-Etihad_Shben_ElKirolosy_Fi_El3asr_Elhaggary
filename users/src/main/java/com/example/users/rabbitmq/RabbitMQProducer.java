@@ -2,6 +2,8 @@ package com.example.users.rabbitmq;
 
 
 import com.example.contracts.ReviewRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,14 @@ public class RabbitMQProducer {
     }
 
     public void sendReviewRequest(ReviewRequest reviewRequest) {
-        rabbitTemplate.convertAndSend(exchange.getName(), "users_routing_key", reviewRequest);
+        ObjectMapper mapper = new ObjectMapper();
+        String json = "";
+        try {
+            json = mapper.writeValueAsString(reviewRequest);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        rabbitTemplate.convertAndSend(exchange.getName(), "users_routing_key", json);
     }
 }
