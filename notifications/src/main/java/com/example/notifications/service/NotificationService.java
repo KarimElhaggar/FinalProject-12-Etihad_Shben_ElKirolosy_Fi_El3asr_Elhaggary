@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -42,7 +43,8 @@ public class NotificationService implements NotificationObserver {
     @Override
     public void onNotificationReceived(List<Long> userIds, NotificationType type) {
         // Delegate to the existing sendBatch method
-        sendBatch(userIds, type);
+        Long[] userIdsArray = userIds.toArray(new Long[0]);
+        sendBatch(userIdsArray, type);
     }
     public NotificationService(RemoteUserService remoteUserService, NotificationRepository notificationRepository,
                                NotificationCommandInvoker invoker,
@@ -64,7 +66,22 @@ public class NotificationService implements NotificationObserver {
 
     public Notification saveNotification(Notification notification) {
         log.info("Saving notification for userId: {}", notification.getUserId());
-
+        if(notification.getUserId() == null) {
+            log.error("User ID is null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID is null");
+        }
+        if(notification.getNotificationType() == null) {
+            log.error("Notification type is null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Notification type is null");
+        }
+        if(notification.getNotification() == null) {
+            log.error("Notification message is null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Notification message is null");
+        }
+        if(notification.getNotificationDate()==null){
+            //add todays date
+            notification.setNotificationDate(LocalDateTime.now());
+        }
         return notificationRepository.save(notification);
     }
 
@@ -109,11 +126,11 @@ public class NotificationService implements NotificationObserver {
 
     public void markAsRead(String id) {
         log.info("Marking notification {} as read", id);
-
-        Notification n = notificationRepository.findById(id).orElseThrow();
+        Notification n = notificationRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found"));
         NotificationCommand command = new ToggleReadCommand(n, true);
         invoker.setCommand(command);
         invoker.executeCommand();
+
         notificationRepository.save(n);
 
         log.info("Notification {} marked as read and saved", id);
@@ -122,7 +139,7 @@ public class NotificationService implements NotificationObserver {
     public void markAsUnread(String id) {
         log.info("Marking notification {} as unread", id);
 
-        Notification n = notificationRepository.findById(id).orElseThrow();
+        Notification n = notificationRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found"));
         NotificationCommand command = new ToggleReadCommand(n, false);
         invoker.setCommand(command);
         invoker.executeCommand();
@@ -152,7 +169,7 @@ public class NotificationService implements NotificationObserver {
 //        sendBatch(ids, type);
 //    }
 
-    public void sendBatch(List<Long> ids, NotificationType type) {
+    public void sendBatch(Long[] ids, NotificationType type) {
         log.info("Sending batch notifications of type {} to userIds: {}", type, ids);
         List<String> mails = new ArrayList<>();
         for (Long userId : ids) {
