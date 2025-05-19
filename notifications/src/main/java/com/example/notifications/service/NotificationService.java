@@ -26,23 +26,16 @@ import java.util.*;
 @Slf4j
 @Service
 public class NotificationService implements NotificationObserver {
-
-
-
     private final RemoteUserService remoteUserService;
 
     @Autowired
     private final EmailService emailService;
-
     @Autowired
     private NotificationRepository notificationRepository;
-
 //    @Autowired
 //    private NotificationPublisher publisher;
-//
 //    @Autowired
 //    private NotificationSubscriber subscriber;
-
     @Autowired
     private final NotificationCommandInvoker invoker;
 
@@ -51,7 +44,6 @@ public class NotificationService implements NotificationObserver {
         // Delegate to the existing sendBatch method
         sendBatch(userIds, type);
     }
-
     public NotificationService(RemoteUserService remoteUserService, NotificationRepository notificationRepository,
                                NotificationCommandInvoker invoker,
                                EmailService emailService
@@ -67,7 +59,6 @@ public class NotificationService implements NotificationObserver {
     @PostConstruct
     public void init() {
         log.info("PostConstruct init(): Subscribing subscriber to publisher.");
-
 //        publisher.subscribe(subscriber);
     }
 
