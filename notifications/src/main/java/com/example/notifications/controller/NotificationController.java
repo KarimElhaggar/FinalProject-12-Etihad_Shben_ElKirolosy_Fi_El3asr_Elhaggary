@@ -56,18 +56,18 @@ public class NotificationController {
     }
 
     @GetMapping("/{id}")
-    public Notification getNotificationById(@PathVariable Long id) {
+    public Notification getNotificationById(@PathVariable String id) {
         return notificationService.getNotificationById(id);
     }
 
     @PutMapping("/{id}/read")
-    public String markAsRead(@PathVariable Long id) {
+    public String markAsRead(@PathVariable String id) {
         notificationService.markAsRead(id);
         return "Read status updated.";
     }
 
     @PutMapping("/{id}/unread")
-    public String markAsUnread(@PathVariable Long id) {
+    public String markAsUnread(@PathVariable String id) {
         notificationService.markAsUnread(id);
         return "Read status updated.";
     }
@@ -79,7 +79,7 @@ public class NotificationController {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteNotification(@PathVariable Long id) {
+    public String deleteNotification(@PathVariable String id) {
         notificationService.deleteNotification(id);
         return "Notification deleted";
     }

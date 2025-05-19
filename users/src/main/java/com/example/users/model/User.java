@@ -66,6 +66,29 @@ public class User {
     public void setAdmin(boolean admin) { this.admin = admin; }
     public void setBanned(boolean banned) { this.banned = banned; }
 
+    // Add a follower
+    public void addFollower(Long followerId) {
+        if (!followers.contains(followerId)) {
+            followers.add(followerId);
+        }
+    }
+
+    // Remove a follower
+    public void addFollowing(Long followingId) {
+        if (!following.contains(followingId)) {
+            following.add(followingId);
+        }
+    }
+
+    // Remove a follower
+    public void removeFollower(Long followerId) {
+        followers.remove(followerId);
+    }
+
+    public void removeFollowing(Long followingId) {
+        following.remove(followingId);
+    }
+
 
     // Builder inner class
     public static class Builder {

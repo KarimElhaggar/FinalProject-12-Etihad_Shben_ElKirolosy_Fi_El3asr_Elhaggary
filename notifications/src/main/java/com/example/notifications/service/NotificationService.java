@@ -9,6 +9,7 @@ import com.example.notifications.feign.RemoteUserService;
 import com.example.notifications.model.Notification;
 //import com.example.notifications.observer.NotificationPublisher;
 //import com.example.notifications.observer.NotificationSubscriber;
+import com.example.notifications.observer.NotificationObserver;
 import com.example.notifications.rabbitmq.RabbitMQConfig;
 import com.example.notifications.repository.NotificationRepository;
 import jakarta.annotation.PostConstruct;
@@ -24,7 +25,9 @@ import java.util.*;
 
 @Slf4j
 @Service
-public class NotificationService {
+public class NotificationService implements NotificationObserver {
+
+
 
     private final RemoteUserService remoteUserService;
 
@@ -42,6 +45,12 @@ public class NotificationService {
 
     @Autowired
     private final NotificationCommandInvoker invoker;
+
+    @Override
+    public void onNotificationReceived(List<Long> userIds, NotificationType type) {
+        // Delegate to the existing sendBatch method
+        sendBatch(userIds, type);
+    }
 
     public NotificationService(RemoteUserService remoteUserService, NotificationRepository notificationRepository,
                                NotificationCommandInvoker invoker,
@@ -80,7 +89,7 @@ public class NotificationService {
         return notificationRepository.findByUserId(userId);
     }
 
-    public Notification getNotificationById(Long id) {
+    public Notification getNotificationById(String id) {
         log.info("Fetching notification by id: {}", id);
 
         Optional<Notification> optional = notificationRepository.findById(id);
@@ -107,7 +116,7 @@ public class NotificationService {
 
     }
 
-    public void markAsRead(Long id) {
+    public void markAsRead(String id) {
         log.info("Marking notification {} as read", id);
 
         Notification n = notificationRepository.findById(id).orElseThrow();
@@ -119,7 +128,7 @@ public class NotificationService {
         log.info("Notification {} marked as read and saved", id);
     }
 
-    public void markAsUnread(Long id) {
+    public void markAsUnread(String id) {
         log.info("Marking notification {} as unread", id);
 
         Notification n = notificationRepository.findById(id).orElseThrow();
@@ -130,27 +139,27 @@ public class NotificationService {
 
         log.info("Notification {} marked as unread and saved", id);
     }
-
-    @RabbitListener(queues = RabbitMQConfig.NOTIFICATION_QUEUE)
-    public void sendBatch(String message) {
-        log.info("Received message on RabbitMQ queue: {}", message);
-        String[] arguments = message.split(";");
-
-        List<Long> ids = Arrays.stream(arguments[0].split(","))
-                .map(Long::parseLong)
-                .toList();
-
-        NotificationType type = arguments[1].equals(NotificationType.NEWMOVIE.toString())
-                ? NotificationType.NEWMOVIE
-                : arguments[1].equals(NotificationType.NEWREVIEW.toString())
-                ? NotificationType.NEWREVIEW
-                : NotificationType.LIKEDREVIEW;
-
-        //System.out.println("Received a notification of type" + type);
-        log.info("Parsed notification type: {}. Sending to userIds: {}", type, ids);
-
-        sendBatch(ids, type);
-    }
+//
+//    @RabbitListener(queues = RabbitMQConfig.NOTIFICATION_QUEUE)
+//    public void sendBatch(String message) {
+//        log.info("Received message on RabbitMQ queue: {}", message);
+//        String[] arguments = message.split(";");
+//
+//        List<Long> ids = Arrays.stream(arguments[0].split(","))
+//                .map(Long::parseLong)
+//                .toList();
+//
+//        NotificationType type = arguments[1].equals(NotificationType.NEWMOVIE.toString())
+//                ? NotificationType.NEWMOVIE
+//                : arguments[1].equals(NotificationType.NEWREVIEW.toString())
+//                ? NotificationType.NEWREVIEW
+//                : NotificationType.LIKEDREVIEW;
+//
+//        //System.out.println("Received a notification of type" + type);
+//        log.info("Parsed notification type: {}. Sending to userIds: {}", type, ids);
+//
+//        sendBatch(ids, type);
+//    }
 
     public void sendBatch(List<Long> ids, NotificationType type) {
         log.info("Sending batch notifications of type {} to userIds: {}", type, ids);
@@ -182,7 +191,7 @@ public class NotificationService {
         return notificationRepository.findUnreadByType(userId, type);
     }
 
-    public void deleteNotification(Long id) {
+    public void deleteNotification(String id) {
         log.info("Deleting notification with id: {}", id);
         notificationRepository.deleteById(id);
     }
@@ -219,7 +228,5 @@ public class NotificationService {
         return filtered;
     }
 
-    public void send(List<String> userEmails, NotificationType type) {
-    }
 }
 

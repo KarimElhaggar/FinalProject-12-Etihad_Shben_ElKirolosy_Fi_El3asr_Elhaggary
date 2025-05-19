@@ -2,6 +2,7 @@ package com.example.movies.service;
 
 import com.example.movies.constants.NotificationType;
 import com.example.movies.model.Movie;
+import com.example.movies.observer.MoviePublisher;
 import com.example.movies.rabbitmq.RabbitMQProducer;
 import com.example.movies.repository.MovieRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +25,15 @@ import java.util.Optional;
 public class MovieService {
 
     private final MovieRepository movieRepository;
-    private final RabbitMQProducer rabbitMQProducer;
+    //private final RabbitMQProducer rabbitMQProducer;
+    private final MoviePublisher moviePublisher;
+
 
     @Autowired
-    public MovieService(MovieRepository movieRepository, RabbitMQProducer rabbitMQProducer) {
+    public MovieService(MovieRepository movieRepository, MoviePublisher moviePublisher) {
         this.movieRepository = movieRepository;
-        this.rabbitMQProducer = rabbitMQProducer;
+       // this.rabbitMQProducer = rabbitMQProducer;
+        this.moviePublisher = moviePublisher;
     }
 
     public List<Movie> getMovies() {
@@ -64,7 +68,6 @@ public class MovieService {
     public Movie updateMovie(Long id, Movie updatedMovie) {
         log.info("Updating movie with id: {}", id);
 
-        // Find the existing movie
         Optional<Movie> optionalMovie = movieRepository.findById(id);
         if (optionalMovie.isPresent()) {
             Movie movie = optionalMovie.get();
@@ -90,18 +93,19 @@ public class MovieService {
             // Handle the release status carefully (partial update)
             if (updatedMovie.isReleased() != movie.isReleased()) {
                 log.info("Movie release status changed. Notifying users...");
-                rabbitMQProducer.sendToNotifications(movie.getInterestedUserIds(), NotificationType.NEWMOVIE);
                 movie.setReleased(updatedMovie.isReleased());
+                moviePublisher.notifyObservers(movie, NotificationType.NEWMOVIE);
             }
 
-            // Save the updated movie into the database
             movieRepository.save(movie);
 
             log.info("Movie with id {} updated successfully", id);
 
             return movie;
         } else {
+
             log.warn("Movie with id {} not found for update", id);
+
             return null;
         }
     }

@@ -56,6 +56,11 @@ public class UserService {
             return new ResponseStatusException(HttpStatus.NOT_FOUND);
         });
 
+        if (user.isBanned()) {
+            log.warn("User with id {} is already banned.", userId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is already banned.");
+        }
+
         user.setBanned(true);
         userRepository.save(user);
         log.info("User with id: {} has been banned.", userId);
@@ -80,6 +85,11 @@ public class UserService {
             log.warn("User with id {} not found for unbanning.", userId);
             return new ResponseStatusException(HttpStatus.NOT_FOUND);
         });
+
+        if (!user.isBanned()) {
+            log.warn("User with id {} is not banned.", userId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not banned.");
+        }
 
         user.setBanned(false);
         userRepository.save(user);
@@ -228,8 +238,8 @@ public class UserService {
         }
 
         if (!user.getFollowing().contains(followUser.getId())) {
-            user.getFollowing().add(followUser.getId());
-            followUser.getFollowers().add(user.getId());
+            user.addFollowing(followUser.getId());
+            followUser.addFollower(user.getId());
             userRepository.save(user);
             userRepository.save(followUser);
             log.info("User {} now follows user {}", user.getId(), followUser.getId());
@@ -256,8 +266,8 @@ public class UserService {
         }
 
         if (user.getFollowing().contains(followUser.getId())) {
-            user.getFollowing().remove(followUser.getId());
-            followUser.getFollowers().remove(user.getId());
+            user.removeFollowing(followUser.getId());
+            followUser.removeFollower(user.getId());
             userRepository.save(user);
             userRepository.save(followUser);
             log.info("User {} unfollowed user {}", user.getId(), followUser.getId());
@@ -267,7 +277,9 @@ public class UserService {
         }
     }
 
-    public void subscribeToNotification(Long userId, Long movieId) {
+    public void subscribeToNotification(Long movieId) {
+        User loggedInUser = authService.getLoggedInUser();
+        Long userId = loggedInUser.getId();
         log.info("User {} subscribing to movie {} notifications.", userId, movieId);
 
         User user = userRepository.findById(userId)
@@ -280,7 +292,9 @@ public class UserService {
         log.info("User {} subscribed to movie {}.", userId, movieId);
     }
 
-    public void addReview(Long userId, Long movieId, String reviewDescription, Double rating) {
+    public void addReview(Long movieId, String reviewDescription, Double rating) {
+        User user = authService.getLoggedInUser();
+        Long userId = user.getId();
         log.info("User {} adding review to movie {}.", userId, movieId);
 
         if (userId == null || movieId == null || reviewDescription == null || rating == null) {
