@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: users-service
-          image: loggedinmonitoring/users
+          image: loggedin213/users:1.1
           ports:
             - containerPort: 8080
           env:

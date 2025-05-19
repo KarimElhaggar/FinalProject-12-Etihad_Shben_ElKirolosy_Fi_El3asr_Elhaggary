@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: apigateway-service
-          image: loggedinmonitoring/apigateway
+          image: loggedin213/apigateway:1.1
           ports:
             - containerPort: 8080
           env:
