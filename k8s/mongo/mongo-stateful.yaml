@@ -29,6 +29,10 @@ spec:
                 secretKeyRef:
                   name: mongo-secret
                   key: MONGO_INITDB_ROOT_PASSWORD
+            - name: SPRING_DATA_MONGODB_SOCKET_TIMEOUT
+              value: "30000"
+            - name: SPRING_DATA_MONGODB_CONNECT_TIMEOUT
+              value: "15000"
           volumeMounts:
             - name: mongo-persistent-volume
               mountPath: /data/db
