@@ -42,6 +42,9 @@ public class MovieController {
         if (request.getRating() != null) {
             builder.rating(request.getRating());
         }
+        else{
+            builder.rating(0.0);
+        }
         if (request.getGenre() != null && !request.getGenre().isBlank()) {
             builder.genre(request.getGenre());
         }
