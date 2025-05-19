@@ -38,7 +38,16 @@ public class ReviewService {
     private final UsersClient usersClient;
     private final MoviesClient moviesClient;
 
+    //getallreviews
+    public List<Review> getAllReviews() {
+        log.info("fetching all reviews");
 
+        List<Review> reviews = reviewRepository.findAll();
+
+        log.info("all reviews fetched and will be returned as a list of reviews.");
+
+        return reviews;
+    }
 
     public List<Review> viewReviewsByUser(Long userId) {
         log.info("fetching reviews for user with id: {}", userId);
