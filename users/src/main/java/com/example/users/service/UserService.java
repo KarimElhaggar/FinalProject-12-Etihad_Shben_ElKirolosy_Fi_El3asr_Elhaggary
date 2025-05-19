@@ -7,6 +7,7 @@ import com.example.users.rabbitmq.RabbitMQProducer;
 import com.example.users.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -27,6 +28,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final MoviesClient moviesClient;
     private final RabbitMQProducer rabbitMQProducer;
+    @Autowired
+    private CacheManager cacheManager;
 
     @Autowired
     public UserService(UserRepository userRepository, AuthService authService, MoviesClient moviesClient, RabbitMQProducer rabbitMQProducer) {
@@ -216,6 +219,11 @@ public class UserService {
         log.info("User attempting to follow user with id: {}", followUserId);
 
         User user = authService.getLoggedInUser();
+
+        if (cacheManager.getCache("user_cache") != null) {
+            cacheManager.getCache("user_cache").evict(user.getId());
+        }
+
         if (user == null) {
             log.warn("No logged in user found for follow.");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No logged in user found.");
@@ -254,6 +262,9 @@ public class UserService {
         log.info("Unfollow request for user id: {}", followUserId);
 
         User user = authService.getLoggedInUser();
+        if (cacheManager.getCache("user_cache") != null) {
+            cacheManager.getCache("user_cache").evict(user.getId());
+        }
         User followUser = userRepository.findById(followUserId)
                 .orElseThrow(() -> {
                     log.warn("User to unfollow with id {} not found.", followUserId);
