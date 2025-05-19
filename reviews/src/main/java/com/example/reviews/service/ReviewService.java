@@ -6,6 +6,7 @@ import com.example.reviews.clients.UsersClient;
 import com.example.reviews.constants.ReviewStatus;
 import com.example.reviews.constants.NotificationType;
 import com.example.reviews.model.Review;
+import com.example.reviews.observer.ReviewPublisher;
 import com.example.reviews.rabbitmq.RabbitMQConfig;
 import com.example.reviews.rabbitmq.RabbitMQProducer;
 import com.example.reviews.repository.ReviewRepository;
@@ -26,12 +27,16 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 public class ReviewService {
+
+    private final ReviewPublisher reviewPublisher;
     private final ReviewRepository reviewRepository;
 
     @Autowired
     private final RabbitMQProducer rabbitMQProducer;
     private final UsersClient usersClient;
     private final MoviesClient moviesClient;
+
+
 
     public List<Review> viewReviewsByUser(Long userId) {
         log.info("fetching reviews for user with id: {}", userId);
@@ -79,7 +84,7 @@ public class ReviewService {
             List<Long> usersToBeNotified = new ArrayList<>();
             usersToBeNotified.add(reviewToBeChanged.getUserId());
 
-            rabbitMQProducer.sendToNotifications(usersToBeNotified, NotificationType.LIKEDREVIEW);
+            reviewPublisher.notifyObservers(usersToBeNotified, NotificationType.NEWREVIEW);
         }
 
         log.info("Review with id: {} and user with id: {} has been updated.", reviewId, userId);
@@ -126,7 +131,7 @@ public class ReviewService {
 
         List<Long> followers = usersClient.getUserFollowersById(review.getUserId());
 
-        rabbitMQProducer.sendToNotifications(followers, NotificationType.NEWREVIEW);
+        reviewPublisher.notifyObservers(followers, NotificationType.LIKEDREVIEW);
 
         log.info("Review created for user with id: {} and movie with id: {}", review.getUserId(), review.getMovieId());
 
