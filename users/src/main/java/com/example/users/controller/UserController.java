@@ -1,5 +1,6 @@
 package com.example.users.controller;
 
+import com.example.users.dto.AddReviewRequest;
 import com.example.users.dto.UserRequest;
 import com.example.users.model.User;
 import com.example.users.service.UserService;
@@ -116,9 +117,23 @@ public class UserController {
         return "Subscribed to the movie notifications successfully!";
     }
 
+//    @PostMapping("/addReview/{userId}/{movieId}")
+//    public String addReview(@PathVariable Long userId, @PathVariable Long movieId, @RequestBody String reviewDescription, @RequestBody Double rating) {
+//        userService.addReview(userId, movieId, reviewDescription, rating);
+//        return "Review added successfully!";
+//    }
+
     @PostMapping("/addReview/{userId}/{movieId}")
-    public String addReview(@PathVariable Long userId, @PathVariable Long movieId, @RequestBody String reviewDescription, @RequestBody Double rating) {
-        userService.addReview(userId, movieId, reviewDescription, rating);
+    public String addReview(@PathVariable Long movieId,
+                            @RequestBody AddReviewRequest request) {
+
+        // Extract individual fields from the request body
+        String reviewDescription = request.getReviewDescription();
+        Double rating = request.getRating();
+
+        // Call userService to process the review
+        userService.addReview(movieId, reviewDescription, rating);
+
         return "Review added successfully!";
     }
 
