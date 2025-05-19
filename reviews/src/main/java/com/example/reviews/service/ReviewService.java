@@ -11,6 +11,8 @@ import com.example.reviews.rabbitmq.RabbitMQConfig;
 import com.example.reviews.rabbitmq.RabbitMQProducer;
 import com.example.reviews.repository.ReviewRepository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -234,7 +236,13 @@ public class ReviewService {
     }
 
     @RabbitListener(queues = RabbitMQConfig.USERS_QUEUE)
-    public void handleUserMessage(ReviewRequest reviewRequest) {
+    public void handleUserMessage(String json) {
+        ReviewRequest reviewRequest = null;
+        try {
+            reviewRequest = new ObjectMapper().readValue(json, ReviewRequest.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         createReview(reviewRequest);
     }
 

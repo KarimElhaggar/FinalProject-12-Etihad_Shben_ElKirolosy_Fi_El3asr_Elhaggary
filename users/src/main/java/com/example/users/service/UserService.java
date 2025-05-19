@@ -5,6 +5,7 @@ import com.example.users.clients.MoviesClient;
 import com.example.users.model.User;
 import com.example.users.rabbitmq.RabbitMQProducer;
 import com.example.users.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
