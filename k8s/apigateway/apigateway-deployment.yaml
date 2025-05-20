@@ -23,109 +23,73 @@ spec:
             - name: SPRING_MAIN_WEB_APPLICATION_TYPE
               value: reactive
 
-            # Swagger UI routes WITHOUT StripPrefix
+            # Swagger routes come first to avoid being overridden
             - name: SPRING_CLOUD_GATEWAY_ROUTES_0_ID
-              value: movies-service-swagger-ui
+              value: movies-service-swagger
             - name: SPRING_CLOUD_GATEWAY_ROUTES_0_URI
               value: http://movies-service:8086
             - name: SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0
-              value: Path=/movies/swagger-ui.html,/movies/swagger-ui/**,/movies/webjars/**,/movies/swagger-resources/**
+              value: Path=/movies/swagger-ui.html,/movies/swagger-ui/**,/movies/webjars/**,/movies/swagger-resources/**,/movies/v3/api-docs
             - name: SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0
-              value: ""
+              value: StripPrefix=1
 
             - name: SPRING_CLOUD_GATEWAY_ROUTES_1_ID
-              value: reviews-service-swagger-ui
+              value: reviews-service-swagger
             - name: SPRING_CLOUD_GATEWAY_ROUTES_1_URI
               value: http://reviews-service:8084
             - name: SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0
-              value: Path=/reviews/swagger-ui.html,/reviews/swagger-ui/**,/reviews/webjars/**,/reviews/swagger-resources/**
+              value: Path=/reviews/swagger-ui.html,/reviews/swagger-ui/**,/reviews/webjars/**,/reviews/swagger-resources/**,/reviews/v3/api-docs
             - name: SPRING_CLOUD_GATEWAY_ROUTES_1_FILTERS_0
-              value: ""
+              value: StripPrefix=1
 
             - name: SPRING_CLOUD_GATEWAY_ROUTES_2_ID
-              value: users-service-swagger-ui
+              value: users-service-swagger
             - name: SPRING_CLOUD_GATEWAY_ROUTES_2_URI
               value: http://users-service:8085
             - name: SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0
-              value: Path=/users/swagger-ui.html,/users/swagger-ui/**,/users/webjars/**,/users/swagger-resources/**
+              value: Path=/users/swagger-ui.html,/users/swagger-ui/**,/users/webjars/**,/users/swagger-resources/**,/users/v3/api-docs
             - name: SPRING_CLOUD_GATEWAY_ROUTES_2_FILTERS_0
-              value: ""
+              value: StripPrefix=1
 
             - name: SPRING_CLOUD_GATEWAY_ROUTES_3_ID
-              value: notifications-service-swagger-ui
+              value: notifications-service-swagger
             - name: SPRING_CLOUD_GATEWAY_ROUTES_3_URI
               value: http://notifications-service:8083
             - name: SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0
-              value: Path=/notifications/swagger-ui.html,/notifications/swagger-ui/**,/notifications/webjars/**,/notifications/swagger-resources/**
+              value: Path=/notifications/swagger-ui.html,/notifications/swagger-ui/**,/notifications/webjars/**,/notifications/swagger-resources/**,/notifications/v3/api-docs
             - name: SPRING_CLOUD_GATEWAY_ROUTES_3_FILTERS_0
-              value: ""
+              value: StripPrefix=1
 
-            # Swagger /v3/api-docs routes WITH StripPrefix=1
+            # Now the general catch-all routes
             - name: SPRING_CLOUD_GATEWAY_ROUTES_4_ID
-              value: movies-service-api-docs
+              value: movies-service
             - name: SPRING_CLOUD_GATEWAY_ROUTES_4_URI
               value: http://movies-service:8086
             - name: SPRING_CLOUD_GATEWAY_ROUTES_4_PREDICATES_0
-              value: Path=/movies/v3/api-docs
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_4_FILTERS_0
-              value: StripPrefix=1
+              value: Path=/movies/**
 
             - name: SPRING_CLOUD_GATEWAY_ROUTES_5_ID
-              value: reviews-service-api-docs
+              value: reviews-service
             - name: SPRING_CLOUD_GATEWAY_ROUTES_5_URI
               value: http://reviews-service:8084
             - name: SPRING_CLOUD_GATEWAY_ROUTES_5_PREDICATES_0
-              value: Path=/reviews/v3/api-docs
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_5_FILTERS_0
-              value: StripPrefix=1
+              value: Path=/reviews/**
 
             - name: SPRING_CLOUD_GATEWAY_ROUTES_6_ID
-              value: users-service-api-docs
+              value: users-service
             - name: SPRING_CLOUD_GATEWAY_ROUTES_6_URI
               value: http://users-service:8085
             - name: SPRING_CLOUD_GATEWAY_ROUTES_6_PREDICATES_0
-              value: Path=/users/v3/api-docs
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_6_FILTERS_0
-              value: StripPrefix=1
+              value: Path=/users/**,/auth/**
 
             - name: SPRING_CLOUD_GATEWAY_ROUTES_7_ID
-              value: notifications-service-api-docs
+              value: notifications-service
             - name: SPRING_CLOUD_GATEWAY_ROUTES_7_URI
               value: http://notifications-service:8083
             - name: SPRING_CLOUD_GATEWAY_ROUTES_7_PREDICATES_0
-              value: Path=/notifications/v3/api-docs
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_7_FILTERS_0
-              value: StripPrefix=1
-
-            # Now the general catch-all routes WITHOUT StripPrefix (as you requested)
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_8_ID
-              value: movies-service
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_8_URI
-              value: http://movies-service:8086
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_8_PREDICATES_0
-              value: Path=/movies/**
-
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_9_ID
-              value: reviews-service
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_9_URI
-              value: http://reviews-service:8084
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_9_PREDICATES_0
-              value: Path=/reviews/**
-
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_10_ID
-              value: users-service
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_10_URI
-              value: http://users-service:8085
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_10_PREDICATES_0
-              value: Path=/users/**,/auth/**
-
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_11_ID
-              value: notifications-service
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_11_URI
-              value: http://notifications-service:8083
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_11_PREDICATES_0
               value: Path=/notifications/**
 
+            # Management and Springdoc config
             - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
               value: prometheus,health,info
             - name: MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED
