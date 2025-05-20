@@ -132,7 +132,6 @@ public class UserService {
         if (userRepository.count() == 0) {
             List<User> users = List.of(
                     new User.Builder()
-                            .id(1L)
                             .name("Alice")
                             .username("alice01")
                             .email("alice@example.com")
@@ -141,7 +140,6 @@ public class UserService {
                             .banned(false)
                             .build(),
                     new User.Builder()
-                            .id(2L)
                             .name("Bob")
                             .username("bobby")
                             .email("bob@example.com")
@@ -150,7 +148,6 @@ public class UserService {
                             .banned(false)
                             .build(),
                     new User.Builder()
-                            .id(3L)
                             .name("Charlie")
                             .username("charlie")
                             .email("charlie@example.com")
