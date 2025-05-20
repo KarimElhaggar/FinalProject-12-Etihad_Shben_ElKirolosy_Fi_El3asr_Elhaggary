@@ -20,6 +20,12 @@ public class MovieController {
         this.movieService = movieService;
     }
 
+    @GetMapping("/seed")
+    public String seed() {
+        movieService.seed();
+        return "movies seeded successfully";
+    }
+
     @GetMapping("/")
     public List<Movie> getMovies() {
         return movieService.getMovies();

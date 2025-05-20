@@ -126,6 +126,44 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public void seed() {
+        log.info("seeding users");
+
+        if (userRepository.count() == 0) {
+            List<User> users = List.of(
+                    new User.Builder()
+                            .id(1L)
+                            .name("Alice")
+                            .username("alice01")
+                            .email("alice@example.com")
+                            .password("pass123")
+                            .admin(false)
+                            .banned(false)
+                            .build(),
+                    new User.Builder()
+                            .id(2L)
+                            .name("Bob")
+                            .username("bobby")
+                            .email("bob@example.com")
+                            .password("pass456")
+                            .admin(false)
+                            .banned(false)
+                            .build(),
+                    new User.Builder()
+                            .id(3L)
+                            .name("Charlie")
+                            .username("charlie")
+                            .email("charlie@example.com")
+                            .password("pass789")
+                            .admin(false)
+                            .banned(false)
+                            .build()
+            );
+
+            userRepository.saveAll(users);
+        }
+    }
+
     @Cacheable(value = "user_cache", key = "#id")
     public User getUserById(Long id) {
         log.info("Fetching user by id: {}", id);

@@ -22,6 +22,12 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getAllReviews());
     }
 
+    @GetMapping("/seed")
+    public String seed() {
+        reviewService.seed();
+        return "reviews seeded successfully";
+    }
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Review>> getReviewsByUser(@PathVariable Long userId) {
         List<Review> reviews = reviewService.viewReviewsByUser(userId);

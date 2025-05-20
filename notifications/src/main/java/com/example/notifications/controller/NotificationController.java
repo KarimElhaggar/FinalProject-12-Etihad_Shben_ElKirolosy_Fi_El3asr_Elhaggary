@@ -34,6 +34,12 @@ public class NotificationController {
         return notificationService.saveNotification(notification);
     }
 
+    @GetMapping("/seed")
+    public String seed() {
+        notificationService.seed();
+        return "notifications seeded successfully";
+    }
+
     @GetMapping
     public List<Notification> getAllNotifications() {
         return notificationService.getAllNotifications();

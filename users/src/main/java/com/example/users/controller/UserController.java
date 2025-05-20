@@ -31,6 +31,12 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @GetMapping("/seed")
+    public String seed() {
+        userService.seed();
+        return "users seeded successfully";
+    }
+
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
         return userService.getUserById(id);

@@ -91,6 +91,21 @@ public class NotificationService implements NotificationObserver {
         return notificationRepository.findAll();
     }
 
+    public void seed() {
+        log.info("seeding notifications");
+
+        if (notificationRepository.count() == 0) {
+            List<Notification> notifications = List.of(
+                    new Notification("Interstellar is now streaming!", NotificationType.LIKEDREVIEW, false, 1L, 100L),
+                    new Notification("The Matrix sequel announced!", NotificationType.NEWMOVIE, false, 2L, 101L),
+                    new Notification("Inception added to your watchlist", NotificationType.NEWREVIEW, false, 3L, 102L),
+                    new Notification("Don't miss Interstellar this weekend!", NotificationType.LIKEDREVIEW, false, 1L, 100L)
+            );
+
+            notificationRepository.saveAll(notifications);
+        }
+    }
+
     public List<Notification> getNotificationsByUserId(Long userId) {
         log.info("Fetching notifications for userId: {}", userId);
 
