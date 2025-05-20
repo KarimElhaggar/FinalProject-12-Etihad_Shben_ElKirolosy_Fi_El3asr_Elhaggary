@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: movies-service
-          image: loggedin213/movies:1.1
+          image: loggedin213/movies:1.2
           ports:
             - containerPort: 8080
           env:

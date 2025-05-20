@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: reviews-service
-          image: loggedin213/reviews:1.1
+          image: loggedin213/reviews:1.2
           ports:
             - containerPort: 8080
           env:

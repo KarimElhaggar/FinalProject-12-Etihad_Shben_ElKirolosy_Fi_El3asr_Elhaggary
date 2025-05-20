@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: apigateway-service
-          image: loggedin213/apigateway:1.1
+          image: loggedin213/apigateway:1.2
           ports:
             - containerPort: 8080
           env:
@@ -59,3 +59,31 @@ spec:
               value: always
             - name: MANAGEMENT_METRICS_TAGS_APPLICATION
               value: apigateway-service
+
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_4_ID
+              value: movies-service-swagger
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_4_URI
+              value: http://movies-service:8086
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_4_PREDICATES_0
+              value: Path=/movies/swagger-ui.html,/movies/v3/api-docs
+
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_5_ID
+              value: reviews-service-swagger
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_5_URI
+              value: http://reviews-service:8084
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_5_PREDICATES_0
+              value: Path=/reviews/swagger-ui.html,/reviews/v3/api-docs
+
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_6_ID
+              value: users-service-swagger
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_6_URI
+              value: http://users-service:8085
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_6_PREDICATES_0
+              value: Path=/users/swagger-ui.html,/users/v3/api-docs
+
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_7_ID
+              value: notifications-service-swagger
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_7_URI
+              value: http://notifications-service:8083
+            - name: SPRING_CLOUD_GATEWAY_ROUTES_7_PREDICATES_0
+              value: Path=/notifications/swagger-ui.html,/notifications/v3/api-docs
