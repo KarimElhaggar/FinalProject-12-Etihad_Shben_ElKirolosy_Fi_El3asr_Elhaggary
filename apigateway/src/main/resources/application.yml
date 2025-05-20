@@ -6,3 +6,9 @@ management:
   metrics:
     tags:
       application: api-gateway
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+

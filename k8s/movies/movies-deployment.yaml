@@ -50,3 +50,5 @@ spec:
               value: redis
             - name: SPRING_REDIS_PORT
               value: "6379"
+
+
