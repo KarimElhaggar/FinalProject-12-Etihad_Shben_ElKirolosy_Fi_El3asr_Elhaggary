@@ -29,7 +29,9 @@ public class Movie {
 
     // Constructor for Builder
     private Movie(Builder builder) {
-        this.id = builder.id;
+        if (builder.id != null){
+            this.id = builder.id;
+        }
         this.movieName = builder.movieName;
         this.author = builder.author;
         this.yearReleased = builder.yearReleased;

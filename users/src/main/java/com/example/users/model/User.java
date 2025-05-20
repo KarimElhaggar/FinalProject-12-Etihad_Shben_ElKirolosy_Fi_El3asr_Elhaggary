@@ -33,7 +33,9 @@ public class User {
     public User() {}
 
     private User(Builder builder) {
-        this.id = builder.id;
+        if (builder.id != null){
+            this.id = builder.id;
+        }
         this.name = builder.name;
         this.username = builder.username;
         this.email = builder.email;
