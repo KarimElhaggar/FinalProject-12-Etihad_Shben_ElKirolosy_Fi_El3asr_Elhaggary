@@ -87,3 +87,8 @@ spec:
               value: http://notifications-service:8083
             - name: SPRING_CLOUD_GATEWAY_ROUTES_7_PREDICATES_0
               value: Path=/notifications/swagger-ui.html,/notifications/v3/api-docs
+            - name: SPRINGDOC_API_DOCS_ENABLED
+              value: "true"
+            - name: SPRINGDOC_SWAGGER_UI_ENABLED
+              value: "true"
+

@@ -50,3 +50,8 @@ spec:
               value: redis
             - name: SPRING_REDIS_PORT
               value: "6379"
+            - name: SPRINGDOC_API_DOCS_ENABLED
+              value: "true"
+            - name: SPRINGDOC_SWAGGER_UI_ENABLED
+              value: "true"
+
